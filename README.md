@@ -31,7 +31,20 @@ a not-found case.
 
 ## Demo path
 
-_(to be filled in — exact commands: run discovery on a goal, then replay the resulting artifact)_
+With the mock app running (above) and `ANTHROPIC_API_KEY` set in `.env`:
+
+```
+PYTHONPATH=. python -m agent.discovery \
+  --goal "Sign on, then look up member 12345 and read their current savings balance" \
+  --max-steps 12
+```
+
+This runs a real Claude-driven discovery loop against the live mock app and writes evidence
+(step-by-step screenshots, a structured decision log, and the run result) to
+`evidence/runs/<timestamp>_discovery/`. Uses `claude-haiku-4-5-20251001` by default (cheap,
+sufficient for this loop); override with the `ANTHROPIC_MODEL` env var.
+
+_(replay command to be added once the artifact recorder + replay engine exist)_
 
 ## Project layout
 
@@ -49,7 +62,7 @@ config/       allowlist / guardrail policy
 
 - [x] Mock target app
 - [x] Surface abstraction (perceive/act)
-- [ ] Discovery agent loop (real LLM-driven run)
+- [x] Discovery agent loop (real LLM-driven run)
 - [ ] Artifact schema + recorder
 - [ ] Deterministic replay engine
 - [ ] Guardrails (allowlist, risk classification, redaction)
