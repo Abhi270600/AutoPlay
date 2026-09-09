@@ -76,6 +76,6 @@ config/       allowlist / guardrail policy
 - [x] Artifact schema + recorder
 - [x] Deterministic replay engine
 - [x] Guardrails (allowlist, risk classification, redaction)
-- [ ] Escalation & handoff
+- [x] Escalation & handoff
 - [ ] Evidence pass (including an error-path replay)
 - [ ] REPORT.md write-up

@@ -27,6 +27,7 @@ from pydantic import BaseModel
 from agent.actions import Action, ElementRef
 from agent.guardrails import GuardrailPolicy, check_discovery_action
 from agent.surface import Surface
+from escalation.handoff import InterventionRequest, escalate
 
 MODEL = os.environ.get("ANTHROPIC_MODEL", "claude-haiku-4-5-20251001")
 
@@ -173,6 +174,7 @@ def run_discovery(
     max_steps: int = 15,
     client: Optional[Anthropic] = None,
     policy: Optional[GuardrailPolicy] = None,
+    escalation_commands=None,
 ) -> DiscoveryResult:
     client = client or Anthropic()
     policy = policy or GuardrailPolicy.load()
@@ -248,10 +250,37 @@ def run_discovery(
             violation = check_discovery_action(policy, action, current_url=surface.page.url)
             if violation:
                 log.write(step=step, event="guardrail_blocked", violation=violation.model_dump())
-                return DiscoveryResult(
-                    status="blocked", goal=goal, outputs=outputs, steps=step,
-                    reason=f"guardrail: {violation.reason}", guardrail_violation=violation.model_dump(),
+                handoff_dir = evidence_dir / "handoff"
+                handoff_dir.mkdir(parents=True, exist_ok=True)
+                screenshot_path = handoff_dir / f"escalation_step_{step:03d}.png"
+                surface.page.screenshot(path=str(screenshot_path))
+                request = InterventionRequest(
+                    goal=goal, current_step=step,
+                    reason=f"guardrail: {violation.reason} - {violation.detail}",
+                    screenshot_path=str(screenshot_path), page_url=surface.page.url,
                 )
+                human_actions = escalate(surface, request, handoff_dir, escalation_commands)
+                log.write(step=step, event="escalation_resolved", human_actions=human_actions)
+
+                _, new_state_text = _state_message(surface, evidence_dir, step)
+                messages.append(
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "tool_result",
+                                "tool_use_id": tool_use.id,
+                                "content": (
+                                    f"BLOCKED by guardrail policy ({violation.reason}): {violation.detail}\n"
+                                    f"A human operator was notified and took control of this session "
+                                    f"({len(human_actions)} action(s) taken), then handed control back.\n\n"
+                                    f"Current page:\n{new_state_text}"
+                                ),
+                            }
+                        ],
+                    }
+                )
+                continue
 
             result = surface.act(action)
             if result.ok and action.type == "extract" and action.extract_as:

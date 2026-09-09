@@ -10,12 +10,14 @@ import json
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Iterable, Optional
 
 from playwright.sync_api import Locator, Page, sync_playwright
 
 from agent.guardrails import GuardrailPolicy, check_replay_step
+from agent.surface import Surface
 from artifacts.schema import ArtifactStep, CapabilityArtifact, TargetLocator
+from escalation.handoff import InterventionRequest, escalate
 from replay.outcomes import ErrorDetail, ReplayResult, check_condition, match_known_outcome
 
 PARAM_PATTERN = re.compile(r"\{\{(\w+)\}\}")
@@ -77,10 +79,13 @@ def run_replay(
     page: Page,
     evidence_dir: Optional[Path] = None,
     policy: Optional[GuardrailPolicy] = None,
+    escalation_commands: Optional[Iterable[str]] = None,
 ) -> ReplayResult:
     policy = policy or GuardrailPolicy.load()
     log = ReplayLog(evidence_dir / "replay_log.jsonl") if evidence_dir else None
     outputs: dict = {}
+    surface = Surface(page)
+    handoff_dir = (evidence_dir or Path("evidence/_tmp_replay")) / "handoff"
 
     missing = [p.name for p in artifact.input_params if p.required and p.name not in params]
     if missing:
@@ -117,7 +122,22 @@ def run_replay(
             if violation:
                 if log:
                     log.write(step=step.index, event="guardrail_blocked", violation=violation.model_dump())
-                return ReplayResult(status="blocked", guardrail_violation=violation.model_dump())
+                screenshot_path = handoff_dir / f"escalation_step_{step.index:03d}.png"
+                handoff_dir.mkdir(parents=True, exist_ok=True)
+                page.screenshot(path=str(screenshot_path))
+                request = InterventionRequest(
+                    capability_id=artifact.id, current_step=step.index,
+                    reason=f"guardrail: {violation.reason} - {violation.detail}",
+                    screenshot_path=str(screenshot_path), page_url=page.url,
+                )
+                # A block means a person must decide this step's fate - not
+                # retry it automatically. If they act via the operator
+                # session, that IS the step; if they decline, we move on
+                # without it. Either way replay does not perform it itself.
+                escalate(surface, request, handoff_dir, escalation_commands)
+                if log:
+                    log.write(step=step.index, event="escalation_resolved", action="skipped_after_human_decision")
+                continue
 
             try:
                 _run_step(page, step, params, outputs)
@@ -138,14 +158,39 @@ def run_replay(
                 target_desc = (
                     f'role="{step.target.role}" name="{step.target.name}"' if step.target else "(no target)"
                 )
-                return ReplayResult(
-                    status="failure",
-                    error=ErrorDetail(
-                        step_index=step.index, action=step.action,
-                        expected=f"step {step.index} ({step.action}) to succeed against {target_desc}",
-                        observed=f"{type(e).__name__}: {e}",
-                    ),
+
+                # Not a known outcome and not policy-blocked - this is exactly
+                # "a condition it can't recover from" (assignment 3.6): escalate,
+                # then retry the SAME step once, since the human's fix (e.g.
+                # dismissing a stuck dialog) should let the original step
+                # succeed now. Retry, not skip - unlike the guardrail-block
+                # case above, nothing says this step was already done for us.
+                handoff_dir.mkdir(parents=True, exist_ok=True)
+                screenshot_path = handoff_dir / f"escalation_step_{step.index:03d}.png"
+                page.screenshot(path=str(screenshot_path))
+                request = InterventionRequest(
+                    capability_id=artifact.id, current_step=step.index,
+                    reason=f"unrecoverable error at step {step.index} ({step.action}): {e}",
+                    screenshot_path=str(screenshot_path), page_url=page.url,
                 )
+                escalate(surface, request, handoff_dir, escalation_commands)
+
+                try:
+                    _run_step(page, step, params, outputs)
+                    if log:
+                        log.write(step=step.index, action=step.action, ok=True, note="succeeded after escalation")
+                    continue
+                except Exception as e2:
+                    if log:
+                        log.write(step=step.index, action=step.action, ok=False, error=str(e2), note="failed again after escalation")
+                    return ReplayResult(
+                        status="failure",
+                        error=ErrorDetail(
+                            step_index=step.index, action=step.action,
+                            expected=f"step {step.index} ({step.action}) to succeed against {target_desc} (even after human escalation)",
+                            observed=f"{type(e2).__name__}: {e2}",
+                        ),
+                    )
 
         checkpoint_met = check_condition(page, artifact.checkpoint.kind, artifact.checkpoint.value)
         if not checkpoint_met:
