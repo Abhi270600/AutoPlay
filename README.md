@@ -48,7 +48,7 @@ config/       allowlist / guardrail policy
 ## Phase checklist
 
 - [x] Mock target app
-- [ ] Surface abstraction (perceive/act)
+- [x] Surface abstraction (perceive/act)
 - [ ] Discovery agent loop (real LLM-driven run)
 - [ ] Artifact schema + recorder
 - [ ] Deterministic replay engine

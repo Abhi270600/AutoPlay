@@ -20,7 +20,7 @@
       <tr>
         <td>Account Type:</td>
         <td>
-          <select name="account_type">
+          <select name="account_type" aria-label="Account Type">
             <option value="">-- select --</option>
             {% for t in account_types %}
             <option value="{{ t }}" {% if selected_type == t %}selected{% endif %}>{{ t }}</option>
@@ -30,11 +30,11 @@
       </tr>
       <tr>
         <td>Initial Deposit:</td>
-        <td><input type="text" name="initial_deposit" value="{{ deposit or '' }}"></td>
+        <td><input type="text" name="initial_deposit" value="{{ deposit or '' }}" aria-label="Initial Deposit"></td>
       </tr>
       <tr>
         <td>Purpose:</td>
-        <td><input type="text" name="purpose" value="{{ purpose or '' }}"></td>
+        <td><input type="text" name="purpose" value="{{ purpose or '' }}" aria-label="Purpose"></td>
       </tr>
       <tr>
         <td colspan="2" align="right"><input type="submit" value="Continue"></td>
