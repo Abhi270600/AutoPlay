@@ -24,10 +24,11 @@ class ErrorDetail(BaseModel):
 
 
 class ReplayResult(BaseModel):
-    status: Literal["success", "business_outcome", "failure"]
+    status: Literal["success", "business_outcome", "failure", "blocked"]
     outputs: dict = {}
     outcome: Optional[str] = None  # KnownOutcome.name, when status == business_outcome
     error: Optional[ErrorDetail] = None  # when status == failure
+    guardrail_violation: Optional[dict] = None  # when status == blocked
 
 
 def check_condition(page: Page, kind: CheckpointKind, value: str) -> bool:

@@ -25,6 +25,7 @@ from playwright.sync_api import sync_playwright
 from pydantic import BaseModel
 
 from agent.actions import Action, ElementRef
+from agent.guardrails import GuardrailPolicy, check_discovery_action
 from agent.surface import Surface
 
 MODEL = os.environ.get("ANTHROPIC_MODEL", "claude-haiku-4-5-20251001")
@@ -105,11 +106,12 @@ ACT_TOOL = {
 
 
 class DiscoveryResult(BaseModel):
-    status: Literal["success", "failure"]
+    status: Literal["success", "failure", "blocked"]
     goal: str
     outputs: dict
     steps: int
     reason: Optional[str] = None
+    guardrail_violation: Optional[dict] = None
 
 
 def _now() -> str:
@@ -170,12 +172,23 @@ def run_discovery(
     evidence_dir: Path,
     max_steps: int = 15,
     client: Optional[Anthropic] = None,
+    policy: Optional[GuardrailPolicy] = None,
 ) -> DiscoveryResult:
     client = client or Anthropic()
+    policy = policy or GuardrailPolicy.load()
     log = DiscoveryLog(evidence_dir / "discovery_log.jsonl")
     outputs: dict = {}
 
-    surface.act(Action(type="navigate", value=start_url, reason="start"))
+    start_action = Action(type="navigate", value=start_url, reason="start")
+    violation = check_discovery_action(policy, start_action, current_url="")
+    if violation:
+        log.write(step=0, event="guardrail_blocked", violation=violation.model_dump())
+        log.close()
+        return DiscoveryResult(
+            status="blocked", goal=goal, outputs=outputs, steps=0,
+            reason=f"guardrail: {violation.reason}", guardrail_violation=violation.model_dump(),
+        )
+    surface.act(start_action)
     state, state_text = _state_message(surface, evidence_dir, 0)
     log.write(step=0, event="state", url=state.url, title=state.title)
 
@@ -220,7 +233,7 @@ def run_discovery(
                 reason=tool_use.input.get("reason"),
             )
             messages.append({"role": "assistant", "content": response.content})
-            log.write(step=step, event="decision", action=action.model_dump())
+            log.write(step=step, event="decision", action=policy.redact_action(action))
 
             if action.type == "done":
                 log.write(step=step, event="done", outputs=outputs)
@@ -230,6 +243,14 @@ def run_discovery(
                 log.write(step=step, event="fail", reason=action.reason)
                 return DiscoveryResult(
                     status="failure", goal=goal, outputs=outputs, steps=step, reason=action.reason
+                )
+
+            violation = check_discovery_action(policy, action, current_url=surface.page.url)
+            if violation:
+                log.write(step=step, event="guardrail_blocked", violation=violation.model_dump())
+                return DiscoveryResult(
+                    status="blocked", goal=goal, outputs=outputs, steps=step,
+                    reason=f"guardrail: {violation.reason}", guardrail_violation=violation.model_dump(),
                 )
 
             result = surface.act(action)

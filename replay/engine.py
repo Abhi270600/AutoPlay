@@ -14,6 +14,7 @@ from typing import Optional
 
 from playwright.sync_api import Locator, Page, sync_playwright
 
+from agent.guardrails import GuardrailPolicy, check_replay_step
 from artifacts.schema import ArtifactStep, CapabilityArtifact, TargetLocator
 from replay.outcomes import ErrorDetail, ReplayResult, check_condition, match_known_outcome
 
@@ -75,7 +76,9 @@ def run_replay(
     params: dict,
     page: Page,
     evidence_dir: Optional[Path] = None,
+    policy: Optional[GuardrailPolicy] = None,
 ) -> ReplayResult:
+    policy = policy or GuardrailPolicy.load()
     log = ReplayLog(evidence_dir / "replay_log.jsonl") if evidence_dir else None
     outputs: dict = {}
 
@@ -84,6 +87,15 @@ def run_replay(
         raise ValueError(f"missing required input params: {missing}")
 
     entry_url = artifact.target.base_url + artifact.target.entry_point
+    if not policy.is_url_allowed(entry_url):
+        if log:
+            log.write(step=0, event="guardrail_blocked", detail=f"entry point {entry_url} not allowed")
+            log.close()
+        return ReplayResult(
+            status="blocked",
+            guardrail_violation={"reason": "url_not_allowed", "detail": f'"{entry_url}" is outside the allowlist'},
+        )
+
     try:
         page.goto(entry_url)
     except Exception as e:
@@ -101,6 +113,12 @@ def run_replay(
 
     try:
         for step in artifact.steps:
+            violation = check_replay_step(policy, step, current_url=page.url)
+            if violation:
+                if log:
+                    log.write(step=step.index, event="guardrail_blocked", violation=violation.model_dump())
+                return ReplayResult(status="blocked", guardrail_violation=violation.model_dump())
+
             try:
                 _run_step(page, step, params, outputs)
                 if log:

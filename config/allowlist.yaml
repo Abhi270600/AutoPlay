@@ -1,5 +1,7 @@
 # Guardrail policy: what the agent is permitted to do.
-# Enforced by agent/guardrails.py for both discovery and replay.
+# Enforced by agent/guardrails.py for both discovery and replay - every
+# action either loop executes is checked against this before it touches
+# the real page.
 
 allowed_base_urls:
   - http://localhost:5000
@@ -19,9 +21,32 @@ allowed_action_types:
   - extract
   - wait
 
-# Actions the agent must treat conservatively: never taken unattended.
-# The doc calls for "block, require confirmation, or flag" - we flag + require
-# explicit confirmation (see agent/guardrails.py for the enforcement point).
-risky_actions:
-  - submit_sub_account_creation
-  - close_account
+# Targets classified risky/irreversible: matched by role+accessible-name,
+# not by action type, since almost every state-changing action is just a
+# "click" - the type alone can't tell a search button from a money-moving
+# confirmation. Blocked outright for now (see REPORT.md Safety); Phase 7's
+# escalation path is meant to turn a block here into a human handoff rather
+# than a dead end.
+risky_targets:
+  - role: button
+    name: "Confirm and Open Account"
+  - role: button
+    name: "Continue Anyway"
+
+# Field names (matched case-insensitively as a substring of the target's
+# accessible name) whose typed value must never appear in plaintext in a
+# log or artifact - see agent/guardrails.py's redact_action().
+#
+# Deliberately narrow: "account number" was tried here and dropped - it
+# false-matched this app's own "Member ID / Account Number" search field,
+# which is a lookup key (meant to be logged), not a secret. Substring
+# matching on field labels is a crude heuristic with real false-positive
+# and false-negative risk in both directions; see REPORT.md Safety.
+sensitive_field_patterns:
+  - password
+  - ssn
+  - social security
+  - pin
+  - cvv
+  - secret
+  - token

@@ -75,7 +75,7 @@ config/       allowlist / guardrail policy
 - [x] Discovery agent loop (real LLM-driven run)
 - [x] Artifact schema + recorder
 - [x] Deterministic replay engine
-- [ ] Guardrails (allowlist, risk classification, redaction)
+- [x] Guardrails (allowlist, risk classification, redaction)
 - [ ] Escalation & handoff
 - [ ] Evidence pass (including an error-path replay)
 - [ ] REPORT.md write-up
