@@ -1,0 +1,174 @@
+{
+  "id": "lookup-member-savings-balance",
+  "version": 1,
+  "description": "Signs on to the CoreServ member servicing terminal, looks up a member by ID, and returns their current savings balance.",
+  "target": {
+    "base_url": "http://localhost:5000",
+    "entry_point": "/login"
+  },
+  "provenance": {
+    "discovery_run_id": "20260909_110340_discovery",
+    "model": "claude-haiku-4-5-20251001",
+    "recorded_at": "2026-09-09T15:37:34.906079+00:00"
+  },
+  "input_params": [
+    {
+      "name": "operator_id",
+      "type": "string",
+      "description": "Operator ID to sign on with",
+      "required": true
+    },
+    {
+      "name": "operator_password",
+      "type": "string",
+      "description": "Operator password to sign on with",
+      "required": true
+    },
+    {
+      "name": "member_id",
+      "type": "string",
+      "description": "Member ID to look up",
+      "required": true
+    }
+  ],
+  "steps": [
+    {
+      "index": 1,
+      "action": "click",
+      "target": {
+        "role": "textbox",
+        "name": "Operator ID",
+        "nth": 0,
+        "exact": false,
+        "relative": null,
+        "reasoning": "Targets by ARIA role \"textbox\" + accessible name \"Operator ID\", not a CSS/XPath selector - the accessibility tree is exposed by the browser/OS directly and survives this app's markup changes better than a selector tied to its table-based layout."
+      },
+      "value": null,
+      "extract_as": null
+    },
+    {
+      "index": 2,
+      "action": "type",
+      "target": {
+        "role": "textbox",
+        "name": "Operator ID",
+        "nth": 0,
+        "exact": false,
+        "relative": null,
+        "reasoning": "Targets by ARIA role \"textbox\" + accessible name \"Operator ID\", not a CSS/XPath selector - the accessibility tree is exposed by the browser/OS directly and survives this app's markup changes better than a selector tied to its table-based layout."
+      },
+      "value": "{{operator_id}}",
+      "extract_as": null
+    },
+    {
+      "index": 3,
+      "action": "click",
+      "target": {
+        "role": "textbox",
+        "name": "Password",
+        "nth": 0,
+        "exact": false,
+        "relative": null,
+        "reasoning": "Targets by ARIA role \"textbox\" + accessible name \"Password\", not a CSS/XPath selector - the accessibility tree is exposed by the browser/OS directly and survives this app's markup changes better than a selector tied to its table-based layout."
+      },
+      "value": null,
+      "extract_as": null
+    },
+    {
+      "index": 4,
+      "action": "type",
+      "target": {
+        "role": "textbox",
+        "name": "Password",
+        "nth": 0,
+        "exact": false,
+        "relative": null,
+        "reasoning": "Targets by ARIA role \"textbox\" + accessible name \"Password\", not a CSS/XPath selector - the accessibility tree is exposed by the browser/OS directly and survives this app's markup changes better than a selector tied to its table-based layout."
+      },
+      "value": "{{operator_password}}",
+      "extract_as": null
+    },
+    {
+      "index": 5,
+      "action": "click",
+      "target": {
+        "role": "button",
+        "name": "Sign On",
+        "nth": 0,
+        "exact": false,
+        "relative": null,
+        "reasoning": "Targets by ARIA role \"button\" + accessible name \"Sign On\", not a CSS/XPath selector - the accessibility tree is exposed by the browser/OS directly and survives this app's markup changes better than a selector tied to its table-based layout."
+      },
+      "value": null,
+      "extract_as": null
+    },
+    {
+      "index": 6,
+      "action": "click",
+      "target": {
+        "role": "textbox",
+        "name": "Member ID / Account Number",
+        "nth": 0,
+        "exact": false,
+        "relative": null,
+        "reasoning": "Targets by ARIA role \"textbox\" + accessible name \"Member ID / Account Number\", not a CSS/XPath selector - the accessibility tree is exposed by the browser/OS directly and survives this app's markup changes better than a selector tied to its table-based layout."
+      },
+      "value": null,
+      "extract_as": null
+    },
+    {
+      "index": 7,
+      "action": "type",
+      "target": {
+        "role": "textbox",
+        "name": "Member ID / Account Number",
+        "nth": 0,
+        "exact": false,
+        "relative": null,
+        "reasoning": "Targets by ARIA role \"textbox\" + accessible name \"Member ID / Account Number\", not a CSS/XPath selector - the accessibility tree is exposed by the browser/OS directly and survives this app's markup changes better than a selector tied to its table-based layout."
+      },
+      "value": "{{member_id}}",
+      "extract_as": null
+    },
+    {
+      "index": 8,
+      "action": "click",
+      "target": {
+        "role": "button",
+        "name": "Find Member",
+        "nth": 0,
+        "exact": false,
+        "relative": null,
+        "reasoning": "Targets by ARIA role \"button\" + accessible name \"Find Member\", not a CSS/XPath selector - the accessibility tree is exposed by the browser/OS directly and survives this app's markup changes better than a selector tied to its table-based layout."
+      },
+      "value": null,
+      "extract_as": null
+    },
+    {
+      "index": 9,
+      "action": "extract",
+      "target": {
+        "role": "cell",
+        "name": "Savings Balance:",
+        "nth": 0,
+        "exact": true,
+        "relative": "next_cell",
+        "reasoning": "Discovery targeted the balance's own text (\"$4231.00\"), which only matches this one member's page. Overridden at recording time to anchor on the stable label cell \"Savings Balance:\" and take the adjacent cell - independent of which member is looked up."
+      },
+      "value": null,
+      "extract_as": "savings_balance"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "savings_balance",
+      "type": "string",
+      "description": "Current savings balance, formatted as currency (e.g. \"$4231.00\")",
+      "required": true
+    }
+  ],
+  "checkpoint": {
+    "kind": "text_present",
+    "value": "Savings Balance"
+  }
+}

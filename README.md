@@ -63,7 +63,7 @@ config/       allowlist / guardrail policy
 - [x] Mock target app
 - [x] Surface abstraction (perceive/act)
 - [x] Discovery agent loop (real LLM-driven run)
-- [ ] Artifact schema + recorder
+- [x] Artifact schema + recorder
 - [ ] Deterministic replay engine
 - [ ] Guardrails (allowlist, risk classification, redaction)
 - [ ] Escalation & handoff
