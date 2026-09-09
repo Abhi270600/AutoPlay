@@ -44,7 +44,17 @@ This runs a real Claude-driven discovery loop against the live mock app and writ
 `evidence/runs/<timestamp>_discovery/`. Uses `claude-haiku-4-5-20251001` by default (cheap,
 sufficient for this loop); override with the `ANTHROPIC_MODEL` env var.
 
-_(replay command to be added once the artifact recorder + replay engine exist)_
+Replay the recorded capability deterministically (no LLM) - note this works for *any* member ID,
+not just the one it was recorded on:
+
+```
+PYTHONPATH=. python -m replay.engine \
+  --artifact artifacts/store/lookup-member-savings-balance.v1.json \
+  --param operator_id=tester --param operator_password=x --param member_id=23456
+```
+
+Try `member_id=99999` (not-found) or `member_id=90001` (permission-denied) to see the
+business-outcome path, or stop the mock app first to see the hard-failure path.
 
 ## Project layout
 
@@ -64,7 +74,7 @@ config/       allowlist / guardrail policy
 - [x] Surface abstraction (perceive/act)
 - [x] Discovery agent loop (real LLM-driven run)
 - [x] Artifact schema + recorder
-- [ ] Deterministic replay engine
+- [x] Deterministic replay engine
 - [ ] Guardrails (allowlist, risk classification, redaction)
 - [ ] Escalation & handoff
 - [ ] Evidence pass (including an error-path replay)

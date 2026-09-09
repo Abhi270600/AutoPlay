@@ -173,4 +173,7 @@ def sub_account_confirm(member_id):
 
 
 if __name__ == "__main__":
-    app.run(port=5000, debug=True)
+    # use_reloader=False: the reloader spawns a second process that actually
+    # holds the port, and Ctrl+C on Windows often only kills the watcher,
+    # leaving the real server running invisibly in the background.
+    app.run(port=5000, debug=True, use_reloader=False)

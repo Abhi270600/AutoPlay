@@ -75,6 +75,19 @@ class Checkpoint(BaseModel):
     value: str
 
 
+class KnownOutcome(BaseModel):
+    """
+    A named, expected non-success result - not a crash, a legitimate answer
+    the caller needs (assignment glossary: "business outcome vs. failure").
+    Checked whenever a step can't proceed or the checkpoint isn't met; if one
+    matches, replay reports this outcome instead of a hard failure.
+    """
+
+    name: str
+    kind: CheckpointKind
+    value: str
+
+
 class CapabilityArtifact(BaseModel):
     id: str
     version: int
@@ -85,3 +98,4 @@ class CapabilityArtifact(BaseModel):
     steps: list[ArtifactStep]
     outputs: list[ParamSpec]
     checkpoint: Checkpoint
+    known_outcomes: list[KnownOutcome] = []

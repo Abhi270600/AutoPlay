@@ -23,6 +23,7 @@ from artifacts.schema import (
     ArtifactStep,
     CapabilityArtifact,
     Checkpoint,
+    KnownOutcome,
     ParamSpec,
     Provenance,
     TargetLocator,
@@ -68,6 +69,7 @@ def build_artifact(
     output_specs: dict[str, ParamSpec],
     checkpoint: Checkpoint,
     target_overrides: Optional[dict[int, TargetLocator]] = None,
+    known_outcomes: Optional[list[KnownOutcome]] = None,
 ) -> CapabilityArtifact:
     target_overrides = target_overrides or {}
     decisions = _load_decisions(discovery_run_dir / "discovery_log.jsonl")
@@ -132,6 +134,7 @@ def build_artifact(
         steps=steps,
         outputs=outputs,
         checkpoint=checkpoint,
+        known_outcomes=known_outcomes or [],
     )
 
 
@@ -162,6 +165,10 @@ if __name__ == "__main__":
             ),
         },
         checkpoint=Checkpoint(kind="text_present", value="Savings Balance"),
+        known_outcomes=[
+            KnownOutcome(name="member_not_found", kind="text_present", value="No member record found"),
+            KnownOutcome(name="permission_denied", kind="text_present", value="Access Denied"),
+        ],
         target_overrides={
             9: TargetLocator(
                 role="cell", name="Savings Balance:", exact=True, relative="next_cell",
