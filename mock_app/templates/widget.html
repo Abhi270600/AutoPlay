@@ -1,0 +1,12 @@
+<html>
+<body bgcolor="#f0f0f0">
+<table width="100%" cellpadding="4" border="0">
+  <tr><td><i>Account Summary Widget</i></td></tr>
+  <tr>
+    <td>
+      Last statement balance for {{ member.name }}: ${{ "%.2f"|format(member.savings_balance) }}
+    </td>
+  </tr>
+</table>
+</body>
+</html>

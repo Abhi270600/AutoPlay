@@ -1,0 +1,29 @@
+<html>
+<head><title>CoreServ - Confirm Sub-Account</title></head>
+<body bgcolor="#d6d3ce">
+<table width="100%" cellpadding="4" cellspacing="0" border="0">
+  <tr bgcolor="#003366">
+    <td><font color="white" size="4"><b>CoreServ Member Servicing Terminal</b></font></td>
+  </tr>
+</table>
+<br>
+<table align="center" border="1" cellpadding="8" cellspacing="0" bgcolor="#ffffff" width="500">
+<tr><td>
+  <b>Confirm Sub-Account Details</b>
+  <table border="0" cellpadding="4">
+    <tr><td>Member:</td><td>{{ member.name }} ({{ member_id }})</td></tr>
+    <tr><td>Account Type:</td><td>{{ account_type }}</td></tr>
+    <tr><td>Initial Deposit:</td><td>${{ "%.2f"|format(deposit) }}</td></tr>
+    <tr><td>Purpose:</td><td>{{ purpose or '(none given)' }}</td></tr>
+  </table>
+  <form method="POST" action="/members/{{ member_id }}/sub-accounts/confirm">
+    <input type="hidden" name="account_type" value="{{ account_type }}">
+    <input type="hidden" name="deposit" value="{{ deposit }}">
+    <input type="hidden" name="purpose" value="{{ purpose }}">
+    <input type="submit" value="Confirm and Open Account">
+  </form>
+  <a href="/members/{{ member_id }}/sub-accounts/new">Back</a>
+</td></tr>
+</table>
+</body>
+</html>

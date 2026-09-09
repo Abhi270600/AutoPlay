@@ -1,0 +1,33 @@
+<html>
+<head><title>CoreServ - Member Search</title></head>
+<body bgcolor="#d6d3ce">
+<table width="100%" cellpadding="4" cellspacing="0" border="0">
+  <tr bgcolor="#003366">
+    <td><font color="white" size="4"><b>CoreServ Member Servicing Terminal</b></font></td>
+    <td align="right"><font color="white"><a href="/logout"><font color="white">Sign Off</font></a></font></td>
+  </tr>
+</table>
+<br>
+<table align="center" border="1" cellpadding="8" cellspacing="0" bgcolor="#ffffff" width="500">
+  <tr><td>
+    <table cellpadding="6"><tr><td valign="top">
+    <b>Member Lookup</b>
+    <form method="GET" action="/members/search">
+      <table border="0" cellpadding="4">
+        <tr>
+          <td>Member ID / Account Number:</td>
+          <td><input type="text" name="query" value="{{ query or '' }}"></td>
+          <td><input type="submit" value="Find Member"></td>
+        </tr>
+      </table>
+    </form>
+    {% if not_found %}
+    <table width="100%" bgcolor="#ffe0e0" border="1" cellpadding="6">
+      <tr><td>No member record found for "{{ query }}".</td></tr>
+    </table>
+    {% endif %}
+    </td></tr></table>
+  </td></tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<html>
+<head><title>CoreServ - Member {{ member_id }}</title></head>
+<body bgcolor="#d6d3ce">
+<table width="100%" cellpadding="4" cellspacing="0" border="0">
+  <tr bgcolor="#003366">
+    <td><font color="white" size="4"><b>CoreServ Member Servicing Terminal</b></font></td>
+    <td align="right"><font color="white"><a href="/logout"><font color="white">Sign Off</font></a></font></td>
+  </tr>
+</table>
+<br>
+<table align="center" border="1" cellpadding="0" cellspacing="0" bgcolor="#ffffff" width="600">
+<tr><td>
+  <table width="100%" cellpadding="8">
+    <tr><td colspan="2"><b>Member Record</b></td></tr>
+    <tr>
+      <td width="150">Member ID:</td>
+      <td>{{ member_id }}</td>
+    </tr>
+    <tr>
+      <td>Name:</td>
+      <td>{{ member.name }}</td>
+    </tr>
+    <tr>
+      <td>Savings Balance:</td>
+      <td>${{ "%.2f"|format(member.savings_balance) }}</td>
+    </tr>
+    <tr>
+      <td>Sub-Accounts:</td>
+      <td>{{ member.sub_accounts|join(', ') if member.sub_accounts else 'None on file' }}</td>
+    </tr>
+  </table>
+  <table width="100%" cellpadding="4"><tr><td>
+    <iframe src="/members/{{ member_id }}/widget" width="100%" height="90" frameborder="1"></iframe>
+  </td></tr></table>
+  <table width="100%" cellpadding="8"><tr><td align="right">
+    <a href="/members/{{ member_id }}/sub-accounts/new"><input type="button" value="Open Sub-Account"></a>
+    &nbsp;
+    <a href="/members/search"><input type="button" value="Back to Search"></a>
+  </td></tr></table>
+</td></tr>
+</table>
+</body>
+</html>

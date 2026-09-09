@@ -1,0 +1,26 @@
+<html>
+<head><title>CoreServ - Duplicate Account Warning</title></head>
+<body bgcolor="#d6d3ce">
+<table width="100%" cellpadding="4" cellspacing="0" border="0">
+  <tr bgcolor="#003366">
+    <td><font color="white" size="4"><b>CoreServ Member Servicing Terminal</b></font></td>
+  </tr>
+</table>
+<br>
+<table align="center" border="1" cellpadding="8" cellspacing="0" bgcolor="#fff8e0" width="500">
+<tr><td>
+  <b>Warning</b><br>
+  Member {{ member_id }} already has a {{ account_type }} sub-account on file.
+  Opening another one of the same type is unusual. Continue anyway?
+  <br><br>
+  <form method="POST" action="/members/{{ member_id }}/sub-accounts/confirm">
+    <input type="hidden" name="account_type" value="{{ account_type }}">
+    <input type="hidden" name="deposit" value="{{ deposit }}">
+    <input type="hidden" name="purpose" value="{{ purpose }}">
+    <input type="submit" value="Continue Anyway">
+  </form>
+  <a href="/members/{{ member_id }}">Cancel</a>
+</td></tr>
+</table>
+</body>
+</html>

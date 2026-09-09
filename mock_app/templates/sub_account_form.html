@@ -1,0 +1,47 @@
+<html>
+<head><title>CoreServ - Open Sub-Account</title></head>
+<body bgcolor="#d6d3ce">
+<table width="100%" cellpadding="4" cellspacing="0" border="0">
+  <tr bgcolor="#003366">
+    <td><font color="white" size="4"><b>CoreServ Member Servicing Terminal</b></font></td>
+  </tr>
+</table>
+<br>
+<table align="center" border="1" cellpadding="8" cellspacing="0" bgcolor="#ffffff" width="500">
+<tr><td>
+  <b>Open Sub-Account for Member {{ member_id }} ({{ member.name }})</b>
+  {% if error %}
+  <table width="100%" bgcolor="#ffe0e0" border="1" cellpadding="6">
+    <tr><td>{{ error }}</td></tr>
+  </table>
+  {% endif %}
+  <form method="POST" action="/members/{{ member_id }}/sub-accounts/new">
+    <table border="0" cellpadding="4">
+      <tr>
+        <td>Account Type:</td>
+        <td>
+          <select name="account_type">
+            <option value="">-- select --</option>
+            {% for t in account_types %}
+            <option value="{{ t }}" {% if selected_type == t %}selected{% endif %}>{{ t }}</option>
+            {% endfor %}
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td>Initial Deposit:</td>
+        <td><input type="text" name="initial_deposit" value="{{ deposit or '' }}"></td>
+      </tr>
+      <tr>
+        <td>Purpose:</td>
+        <td><input type="text" name="purpose" value="{{ purpose or '' }}"></td>
+      </tr>
+      <tr>
+        <td colspan="2" align="right"><input type="submit" value="Continue"></td>
+      </tr>
+    </table>
+  </form>
+</td></tr>
+</table>
+</body>
+</html>

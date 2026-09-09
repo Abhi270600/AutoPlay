@@ -11,8 +11,23 @@ Built for the interface.ai take-home assignment. See `REPORT.md` for the design 
 
 ## Setup
 
-_(to be filled in — Python version, `pip install -r requirements.txt`, `playwright install`,
-`.env` from `.env.example`, how to start the mock app)_
+```
+python -m venv .venv
+source .venv/Scripts/activate   # Windows Git Bash; use .venv\Scripts\activate on cmd/PowerShell
+pip install -r requirements.txt
+playwright install chromium
+cp .env.example .env            # then fill in ANTHROPIC_API_KEY
+```
+
+Start the mock target app (a fake legacy bank servicing tool the agent will operate):
+
+```
+python mock_app/app.py
+```
+
+It listens on http://localhost:5000. Any username/password logs in (this is a mock).
+Try member IDs `12345` and `23456`; `90001` is a permission-denied case and any other ID is
+a not-found case.
 
 ## Demo path
 
@@ -32,7 +47,7 @@ config/       allowlist / guardrail policy
 
 ## Phase checklist
 
-- [ ] Mock target app
+- [x] Mock target app
 - [ ] Surface abstraction (perceive/act)
 - [ ] Discovery agent loop (real LLM-driven run)
 - [ ] Artifact schema + recorder

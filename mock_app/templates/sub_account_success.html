@@ -1,0 +1,23 @@
+<html>
+<head><title>CoreServ - Sub-Account Opened</title></head>
+<body bgcolor="#d6d3ce">
+<table width="100%" cellpadding="4" cellspacing="0" border="0">
+  <tr bgcolor="#003366">
+    <td><font color="white" size="4"><b>CoreServ Member Servicing Terminal</b></font></td>
+  </tr>
+</table>
+<br>
+<table align="center" border="1" cellpadding="8" cellspacing="0" bgcolor="#e0ffe0" width="500">
+<tr><td>
+  <b>Sub-Account Opened Successfully</b>
+  <table border="0" cellpadding="4">
+    <tr><td>Confirmation Number:</td><td>{{ confirmation_number }}</td></tr>
+    <tr><td>Member:</td><td>{{ member.name }} ({{ member_id }})</td></tr>
+    <tr><td>Account Type:</td><td>{{ account_type }}</td></tr>
+    <tr><td>Initial Deposit:</td><td>${{ "%.2f"|format(deposit|float) }}</td></tr>
+  </table>
+  <a href="/members/{{ member_id }}">Return to Member Record</a>
+</td></tr>
+</table>
+</body>
+</html>
