@@ -1,0 +1,27 @@
+# Guardrail policy: what the agent is permitted to do.
+# Enforced by agent/guardrails.py for both discovery and replay.
+
+allowed_base_urls:
+  - http://localhost:5000
+
+allowed_routes:
+  - /login
+  - /members
+  - /members/*
+  - /members/*/sub-accounts/new
+  - /members/*/sub-accounts/confirm
+
+allowed_action_types:
+  - navigate
+  - click
+  - type
+  - select
+  - extract
+  - wait
+
+# Actions the agent must treat conservatively: never taken unattended.
+# The doc calls for "block, require confirmation, or flag" - we flag + require
+# explicit confirmation (see agent/guardrails.py for the enforcement point).
+risky_actions:
+  - submit_sub_account_creation
+  - close_account

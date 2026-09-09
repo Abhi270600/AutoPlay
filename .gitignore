@@ -1,0 +1,9 @@
+Assignment A — Computer-Use Automation System.pdf
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+*.egg-info/
+node_modules/
+.pytest_cache/
