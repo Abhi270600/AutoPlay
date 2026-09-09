@@ -1,0 +1,9 @@
+{
+  "status": "success",
+  "outputs": {
+    "savings_balance": "$1500.50"
+  },
+  "outcome": null,
+  "error": null,
+  "guardrail_violation": null
+}

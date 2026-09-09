@@ -1,0 +1,31 @@
+{"step": 0, "event": "state", "url": "http://localhost:5000/login", "title": "CoreServ Member Servicing - Login", "timestamp": "2026-09-09T20:34:32.490186+00:00"}
+{"step": 1, "event": "decision", "action": {"type": "click", "target": {"role": "textbox", "name": "Operator ID", "nth": 0, "exact": false}, "value": null, "extract_as": null, "reason": "Click on the Operator ID textbox to start signing on"}, "timestamp": "2026-09-09T20:34:34.143982+00:00"}
+{"step": 1, "event": "result", "ok": true, "error": null, "timestamp": "2026-09-09T20:34:34.334529+00:00"}
+{"step": 2, "event": "decision", "action": {"type": "type", "target": {"role": "textbox", "name": "Operator ID", "nth": 0, "exact": false}, "value": "operator1", "extract_as": null, "reason": "Enter an Operator ID for sign-on"}, "timestamp": "2026-09-09T20:34:35.881921+00:00"}
+{"step": 2, "event": "result", "ok": true, "error": null, "timestamp": "2026-09-09T20:34:36.067865+00:00"}
+{"step": 3, "event": "decision", "action": {"type": "click", "target": {"role": "textbox", "name": "Password", "nth": 0, "exact": false}, "value": null, "extract_as": null, "reason": "Click on the Password textbox"}, "timestamp": "2026-09-09T20:34:37.275172+00:00"}
+{"step": 3, "event": "result", "ok": true, "error": null, "timestamp": "2026-09-09T20:34:37.506437+00:00"}
+{"step": 4, "event": "decision", "action": {"type": "type", "target": {"role": "textbox", "name": "Password", "nth": 0, "exact": false}, "value": "[REDACTED]", "extract_as": null, "reason": "Enter a password for sign-on"}, "timestamp": "2026-09-09T20:34:38.881371+00:00"}
+{"step": 4, "event": "result", "ok": true, "error": null, "timestamp": "2026-09-09T20:34:39.046369+00:00"}
+{"step": 5, "event": "decision", "action": {"type": "click", "target": {"role": "button", "name": "Sign On", "nth": 0, "exact": false}, "value": null, "extract_as": null, "reason": "Click the Sign On button to authenticate"}, "timestamp": "2026-09-09T20:34:40.281812+00:00"}
+{"step": 5, "event": "result", "ok": true, "error": null, "timestamp": "2026-09-09T20:34:40.914779+00:00"}
+{"step": 6, "event": "decision", "action": {"type": "click", "target": {"role": "textbox", "name": "Member ID / Account Number", "nth": 0, "exact": false}, "value": null, "extract_as": null, "reason": "Click on the Member ID search textbox"}, "timestamp": "2026-09-09T20:34:42.218811+00:00"}
+{"step": 6, "event": "result", "ok": true, "error": null, "timestamp": "2026-09-09T20:34:42.405098+00:00"}
+{"step": 7, "event": "decision", "action": {"type": "type", "target": {"role": "textbox", "name": "Member ID / Account Number", "nth": 0, "exact": false}, "value": "12345", "extract_as": null, "reason": "Enter member ID 12345 to search for the member"}, "timestamp": "2026-09-09T20:34:43.888031+00:00"}
+{"step": 7, "event": "result", "ok": true, "error": null, "timestamp": "2026-09-09T20:34:44.044904+00:00"}
+{"step": 8, "event": "decision", "action": {"type": "click", "target": {"role": "button", "name": "Find Member", "nth": 0, "exact": false}, "value": null, "extract_as": null, "reason": "Click the Find Member button to search for member 12345"}, "timestamp": "2026-09-09T20:34:45.317449+00:00"}
+{"step": 8, "event": "result", "ok": true, "error": null, "timestamp": "2026-09-09T20:34:45.988293+00:00"}
+{"step": 9, "event": "decision", "action": {"type": "click", "target": {"role": "button", "name": "Open Sub-Account", "nth": 0, "exact": false}, "value": null, "extract_as": null, "reason": "Click the Open Sub-Account button to create a new Money Market sub-account"}, "timestamp": "2026-09-09T20:34:47.407931+00:00"}
+{"step": 9, "event": "result", "ok": true, "error": null, "timestamp": "2026-09-09T20:34:47.728312+00:00"}
+{"step": 10, "event": "decision", "action": {"type": "click", "target": {"role": "combobox", "name": "Account Type", "nth": 0, "exact": false}, "value": null, "extract_as": null, "reason": "Click on the Account Type dropdown to select Money Market"}, "timestamp": "2026-09-09T20:34:49.137778+00:00"}
+{"step": 10, "event": "result", "ok": true, "error": null, "timestamp": "2026-09-09T20:34:49.437666+00:00"}
+{"step": 11, "event": "decision", "action": {"type": "select", "target": {"role": "combobox", "name": "Account Type", "nth": 0, "exact": false}, "value": "Money Market", "extract_as": null, "reason": "Select Money Market from the Account Type dropdown"}, "timestamp": "2026-09-09T20:34:50.921345+00:00"}
+{"step": 11, "event": "result", "ok": true, "error": null, "timestamp": "2026-09-09T20:34:51.091217+00:00"}
+{"step": 12, "event": "decision", "action": {"type": "click", "target": {"role": "textbox", "name": "Initial Deposit", "nth": 0, "exact": false}, "value": null, "extract_as": null, "reason": "Click on the Initial Deposit textbox to enter the deposit amount"}, "timestamp": "2026-09-09T20:34:52.474613+00:00"}
+{"step": 12, "event": "result", "ok": true, "error": null, "timestamp": "2026-09-09T20:34:52.664752+00:00"}
+{"step": 13, "event": "decision", "action": {"type": "type", "target": {"role": "textbox", "name": "Initial Deposit", "nth": 0, "exact": false}, "value": "250", "extract_as": null, "reason": "Enter 250 dollars as the initial deposit"}, "timestamp": "2026-09-09T20:34:54.115350+00:00"}
+{"step": 13, "event": "result", "ok": true, "error": null, "timestamp": "2026-09-09T20:34:54.262266+00:00"}
+{"step": 14, "event": "decision", "action": {"type": "click", "target": {"role": "button", "name": "Continue", "nth": 0, "exact": false}, "value": null, "extract_as": null, "reason": "Click the Continue button to proceed to the confirmation screen"}, "timestamp": "2026-09-09T20:34:55.755529+00:00"}
+{"step": 14, "event": "result", "ok": true, "error": null, "timestamp": "2026-09-09T20:34:56.368895+00:00"}
+{"step": 15, "event": "decision", "action": {"type": "done", "target": null, "value": null, "extract_as": null, "reason": "Confirmation screen has been reached with all required details: Money Market account type, $250.00 initial deposit for member Jane Doe (12345). The goal specified to stop once the confirmation screen is displayed and not click the final confirm button."}, "timestamp": "2026-09-09T20:34:58.209231+00:00"}
+{"step": 15, "event": "done", "outputs": {}, "timestamp": "2026-09-09T20:34:58.209420+00:00"}

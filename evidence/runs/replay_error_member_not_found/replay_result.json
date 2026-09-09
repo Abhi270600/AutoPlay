@@ -1,0 +1,7 @@
+{
+  "status": "business_outcome",
+  "outputs": {},
+  "outcome": "member_not_found",
+  "error": null,
+  "guardrail_violation": null
+}

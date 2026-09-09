@@ -1,0 +1,141 @@
+{
+  "id": "open-sub-account-and-confirm-demo",
+  "version": 1,
+  "description": "Demo-only extension of open-sub-account.v1 that also attempts the final irreversible confirmation click, for evidence purposes only - see this script's docstring.",
+  "target": {
+    "base_url": "http://localhost:5000",
+    "entry_point": "/login"
+  },
+  "provenance": {
+    "discovery_run_id": "n/a - hand-built for evidence",
+    "model": "n/a",
+    "recorded_at": "n/a"
+  },
+  "input_params": [
+    {
+      "name": "operator_id",
+      "type": "string",
+      "description": "x",
+      "required": true
+    },
+    {
+      "name": "operator_password",
+      "type": "string",
+      "description": "x",
+      "required": true
+    }
+  ],
+  "steps": [
+    {
+      "index": 1,
+      "action": "type",
+      "target": {
+        "role": "textbox",
+        "name": "Operator ID",
+        "nth": 0,
+        "exact": false,
+        "relative": null,
+        "reasoning": "x"
+      },
+      "value": "{{operator_id}}",
+      "extract_as": null
+    },
+    {
+      "index": 2,
+      "action": "type",
+      "target": {
+        "role": "textbox",
+        "name": "Password",
+        "nth": 0,
+        "exact": false,
+        "relative": null,
+        "reasoning": "x"
+      },
+      "value": "{{operator_password}}",
+      "extract_as": null
+    },
+    {
+      "index": 3,
+      "action": "click",
+      "target": {
+        "role": "button",
+        "name": "Sign On",
+        "nth": 0,
+        "exact": false,
+        "relative": null,
+        "reasoning": "x"
+      },
+      "value": null,
+      "extract_as": null
+    },
+    {
+      "index": 4,
+      "action": "navigate",
+      "target": null,
+      "value": "http://localhost:5000/members/12345/sub-accounts/new",
+      "extract_as": null
+    },
+    {
+      "index": 5,
+      "action": "select",
+      "target": {
+        "role": "combobox",
+        "name": "Account Type",
+        "nth": 0,
+        "exact": false,
+        "relative": null,
+        "reasoning": "x"
+      },
+      "value": "Money Market",
+      "extract_as": null
+    },
+    {
+      "index": 6,
+      "action": "type",
+      "target": {
+        "role": "textbox",
+        "name": "Initial Deposit",
+        "nth": 0,
+        "exact": false,
+        "relative": null,
+        "reasoning": "x"
+      },
+      "value": "300",
+      "extract_as": null
+    },
+    {
+      "index": 7,
+      "action": "click",
+      "target": {
+        "role": "button",
+        "name": "Continue",
+        "nth": 0,
+        "exact": false,
+        "relative": null,
+        "reasoning": "x"
+      },
+      "value": null,
+      "extract_as": null
+    },
+    {
+      "index": 8,
+      "action": "click",
+      "target": {
+        "role": "button",
+        "name": "Confirm and Open Account",
+        "nth": 0,
+        "exact": false,
+        "relative": null,
+        "reasoning": "x"
+      },
+      "value": null,
+      "extract_as": null
+    }
+  ],
+  "outputs": [],
+  "checkpoint": {
+    "kind": "text_present",
+    "value": "Sub-Account Opened Successfully"
+  },
+  "known_outcomes": []
+}

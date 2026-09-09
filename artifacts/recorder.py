@@ -138,11 +138,15 @@ def build_artifact(
     )
 
 
-if __name__ == "__main__":
-    # Records the one capability discovered so far. As more capabilities are
-    # added, each gets a block like this - there are too few of them yet to
-    # justify a generic config-driven recording CLI.
-    artifact = build_artifact(
+def _save(artifact: CapabilityArtifact) -> None:
+    out_path = Path("artifacts/store") / f"{artifact.id}.v{artifact.version}.json"
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(artifact.model_dump_json(indent=2))
+    print(f"Wrote {out_path}")
+
+
+def record_lookup_member() -> CapabilityArtifact:
+    return build_artifact(
         capability_id="lookup-member-savings-balance",
         version=1,
         description=(
@@ -182,7 +186,50 @@ if __name__ == "__main__":
         },
     )
 
-    out_path = Path("artifacts/store") / f"{artifact.id}.v{artifact.version}.json"
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(artifact.model_dump_json(indent=2))
-    print(f"Wrote {out_path}")
+
+def record_open_sub_account() -> CapabilityArtifact:
+    return build_artifact(
+        capability_id="open-sub-account",
+        version=1,
+        description=(
+            "Signs on, opens a new sub-account for a member with a chosen "
+            "account type and initial deposit, and reaches the confirmation "
+            "review screen. Deliberately stops there: actually finalizing the "
+            "account (the 'Confirm and Open Account' click) is a separate, "
+            "guardrail-classified risky action requiring human confirmation - "
+            "see config/allowlist.yaml and REPORT.md Safety."
+        ),
+        discovery_run_dir=Path("evidence/runs/20260909_163428_discovery"),
+        model="claude-haiku-4-5-20251001",
+        target_base_url="http://localhost:5000",
+        entry_point="/login",
+        param_bindings={
+            2: ParamSpec(name="operator_id", type="string", description="Operator ID to sign on with"),
+            4: ParamSpec(name="operator_password", type="string", description="Operator password to sign on with"),
+            7: ParamSpec(name="member_id", type="string", description="Member ID to open a sub-account for"),
+            11: ParamSpec(name="account_type", type="string", description="Sub-account type, e.g. \"Money Market\""),
+            13: ParamSpec(name="initial_deposit", type="string", description="Initial deposit amount, e.g. \"250\""),
+        },
+        output_specs={},
+        checkpoint=Checkpoint(kind="text_present", value="Confirm Sub-Account Details"),
+        known_outcomes=[
+            KnownOutcome(name="member_not_found", kind="text_present", value="No member record found"),
+            KnownOutcome(name="permission_denied", kind="text_present", value="Access Denied"),
+            KnownOutcome(name="missing_account_type", kind="text_present", value="Account type is required."),
+            KnownOutcome(name="invalid_deposit_zero", kind="text_present", value="Initial deposit must be greater than zero."),
+            KnownOutcome(name="invalid_deposit_nonnumeric", kind="text_present", value="Initial deposit must be a number."),
+            # Judgment call, not an oversight: the duplicate-account warning's
+            # "Continue Anyway" button immediately finalizes the (irreversible)
+            # sub-account creation - it is not a cosmetic interstitial to
+            # auto-dismiss, it gates the same risky action "Confirm and Open
+            # Account" does (both are in risky_targets). So this is classified
+            # as a business outcome the caller must decide about, not
+            # auto-recovered and not a hard failure. See REPORT.md.
+            KnownOutcome(name="duplicate_account_type", kind="text_present", value="already has a"),
+        ],
+    )
+
+
+if __name__ == "__main__":
+    _save(record_lookup_member())
+    _save(record_open_sub_account())

@@ -1,15 +1,15 @@
 {
-  "id": "lookup-member-savings-balance",
+  "id": "open-sub-account",
   "version": 1,
-  "description": "Signs on to the CoreServ member servicing terminal, looks up a member by ID, and returns their current savings balance.",
+  "description": "Signs on, opens a new sub-account for a member with a chosen account type and initial deposit, and reaches the confirmation review screen. Deliberately stops there: actually finalizing the account (the 'Confirm and Open Account' click) is a separate, guardrail-classified risky action requiring human confirmation - see config/allowlist.yaml and REPORT.md Safety.",
   "target": {
     "base_url": "http://localhost:5000",
     "entry_point": "/login"
   },
   "provenance": {
-    "discovery_run_id": "20260909_110340_discovery",
+    "discovery_run_id": "20260909_163428_discovery",
     "model": "claude-haiku-4-5-20251001",
-    "recorded_at": "2026-09-09T20:37:37.212917+00:00"
+    "recorded_at": "2026-09-09T20:37:37.216931+00:00"
   },
   "input_params": [
     {
@@ -27,7 +27,19 @@
     {
       "name": "member_id",
       "type": "string",
-      "description": "Member ID to look up",
+      "description": "Member ID to open a sub-account for",
+      "required": true
+    },
+    {
+      "name": "account_type",
+      "type": "string",
+      "description": "Sub-account type, e.g. \"Money Market\"",
+      "required": true
+    },
+    {
+      "name": "initial_deposit",
+      "type": "string",
+      "description": "Initial deposit amount, e.g. \"250\"",
       "required": true
     }
   ],
@@ -146,30 +158,93 @@
     },
     {
       "index": 9,
-      "action": "extract",
+      "action": "click",
       "target": {
-        "role": "cell",
-        "name": "Savings Balance:",
+        "role": "button",
+        "name": "Open Sub-Account",
         "nth": 0,
-        "exact": true,
-        "relative": "next_cell",
-        "reasoning": "Discovery targeted the balance's own text (\"$4231.00\"), which only matches this one member's page. Overridden at recording time to anchor on the stable label cell \"Savings Balance:\" and take the adjacent cell - independent of which member is looked up."
+        "exact": false,
+        "relative": null,
+        "reasoning": "Targets by ARIA role \"button\" + accessible name \"Open Sub-Account\", not a CSS/XPath selector - the accessibility tree is exposed by the browser/OS directly and survives this app's markup changes better than a selector tied to its table-based layout."
       },
       "value": null,
-      "extract_as": "savings_balance"
-    }
-  ],
-  "outputs": [
+      "extract_as": null
+    },
     {
-      "name": "savings_balance",
-      "type": "string",
-      "description": "Current savings balance, formatted as currency (e.g. \"$4231.00\")",
-      "required": true
+      "index": 10,
+      "action": "click",
+      "target": {
+        "role": "combobox",
+        "name": "Account Type",
+        "nth": 0,
+        "exact": false,
+        "relative": null,
+        "reasoning": "Targets by ARIA role \"combobox\" + accessible name \"Account Type\", not a CSS/XPath selector - the accessibility tree is exposed by the browser/OS directly and survives this app's markup changes better than a selector tied to its table-based layout."
+      },
+      "value": null,
+      "extract_as": null
+    },
+    {
+      "index": 11,
+      "action": "select",
+      "target": {
+        "role": "combobox",
+        "name": "Account Type",
+        "nth": 0,
+        "exact": false,
+        "relative": null,
+        "reasoning": "Targets by ARIA role \"combobox\" + accessible name \"Account Type\", not a CSS/XPath selector - the accessibility tree is exposed by the browser/OS directly and survives this app's markup changes better than a selector tied to its table-based layout."
+      },
+      "value": "{{account_type}}",
+      "extract_as": null
+    },
+    {
+      "index": 12,
+      "action": "click",
+      "target": {
+        "role": "textbox",
+        "name": "Initial Deposit",
+        "nth": 0,
+        "exact": false,
+        "relative": null,
+        "reasoning": "Targets by ARIA role \"textbox\" + accessible name \"Initial Deposit\", not a CSS/XPath selector - the accessibility tree is exposed by the browser/OS directly and survives this app's markup changes better than a selector tied to its table-based layout."
+      },
+      "value": null,
+      "extract_as": null
+    },
+    {
+      "index": 13,
+      "action": "type",
+      "target": {
+        "role": "textbox",
+        "name": "Initial Deposit",
+        "nth": 0,
+        "exact": false,
+        "relative": null,
+        "reasoning": "Targets by ARIA role \"textbox\" + accessible name \"Initial Deposit\", not a CSS/XPath selector - the accessibility tree is exposed by the browser/OS directly and survives this app's markup changes better than a selector tied to its table-based layout."
+      },
+      "value": "{{initial_deposit}}",
+      "extract_as": null
+    },
+    {
+      "index": 14,
+      "action": "click",
+      "target": {
+        "role": "button",
+        "name": "Continue",
+        "nth": 0,
+        "exact": false,
+        "relative": null,
+        "reasoning": "Targets by ARIA role \"button\" + accessible name \"Continue\", not a CSS/XPath selector - the accessibility tree is exposed by the browser/OS directly and survives this app's markup changes better than a selector tied to its table-based layout."
+      },
+      "value": null,
+      "extract_as": null
     }
   ],
+  "outputs": [],
   "checkpoint": {
     "kind": "text_present",
-    "value": "Savings Balance"
+    "value": "Confirm Sub-Account Details"
   },
   "known_outcomes": [
     {
@@ -181,6 +256,26 @@
       "name": "permission_denied",
       "kind": "text_present",
       "value": "Access Denied"
+    },
+    {
+      "name": "missing_account_type",
+      "kind": "text_present",
+      "value": "Account type is required."
+    },
+    {
+      "name": "invalid_deposit_zero",
+      "kind": "text_present",
+      "value": "Initial deposit must be greater than zero."
+    },
+    {
+      "name": "invalid_deposit_nonnumeric",
+      "kind": "text_present",
+      "value": "Initial deposit must be a number."
+    },
+    {
+      "name": "duplicate_account_type",
+      "kind": "text_present",
+      "value": "already has a"
     }
   ]
 }

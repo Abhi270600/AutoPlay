@@ -1,0 +1,7 @@
+{
+  "status": "business_outcome",
+  "outputs": {},
+  "outcome": "invalid_deposit_zero",
+  "error": null,
+  "guardrail_violation": null
+}

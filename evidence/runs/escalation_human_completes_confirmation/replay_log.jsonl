@@ -1,0 +1,10 @@
+{"step": 1, "action": "type", "ok": true, "timestamp": "2026-09-09T16:43:55.591018"}
+{"step": 2, "action": "type", "ok": true, "timestamp": "2026-09-09T16:43:55.617149"}
+{"step": 3, "action": "click", "ok": true, "timestamp": "2026-09-09T16:43:56.894597"}
+{"step": 4, "action": "navigate", "ok": true, "timestamp": "2026-09-09T16:43:57.148853"}
+{"step": 5, "action": "select", "ok": true, "timestamp": "2026-09-09T16:43:57.236924"}
+{"step": 6, "action": "type", "ok": true, "timestamp": "2026-09-09T16:43:57.260798"}
+{"step": 7, "action": "click", "ok": true, "timestamp": "2026-09-09T16:43:57.340989"}
+{"step": 8, "event": "guardrail_blocked", "violation": {"reason": "risky_action_blocked", "detail": "target role=\"button\" name=\"Confirm and Open Account\" is classified risky and is blocked pending human confirmation"}, "timestamp": "2026-09-09T16:43:57.341807"}
+{"step": 8, "event": "escalation_resolved", "action": "skipped_after_human_decision", "timestamp": "2026-09-09T16:43:57.957914"}
+{"event": "success", "outputs": {}, "timestamp": "2026-09-09T16:43:58.043768"}

@@ -56,6 +56,19 @@ PYTHONPATH=. python -m replay.engine \
 Try `member_id=99999` (not-found) or `member_id=90001` (permission-denied) to see the
 business-outcome path, or stop the mock app first to see the hard-failure path.
 
+A second, richer capability is also recorded - opening a sub-account (multi-field form ->
+confirmation screen), deliberately stopping short of the final irreversible confirmation click:
+
+```
+PYTHONPATH=. python -m replay.engine \
+  --artifact artifacts/store/open-sub-account.v1.json \
+  --param operator_id=tester --param operator_password=x --param member_id=23456 \
+  --param account_type="Money Market" --param initial_deposit=250
+```
+
+See `evidence/README.md` for an indexed walkthrough of every captured run - discovery, replay
+success, two distinct business-outcome classes, and a real escalation/handoff.
+
 ## Project layout
 
 ```
@@ -77,5 +90,5 @@ config/       allowlist / guardrail policy
 - [x] Deterministic replay engine
 - [x] Guardrails (allowlist, risk classification, redaction)
 - [x] Escalation & handoff
-- [ ] Evidence pass (including an error-path replay)
+- [x] Evidence pass (including an error-path replay)
 - [ ] REPORT.md write-up

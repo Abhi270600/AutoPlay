@@ -1,0 +1,10 @@
+{"step": 1, "action": "click", "ok": true, "timestamp": "2026-09-09T16:39:43.140092"}
+{"step": 2, "action": "type", "ok": true, "timestamp": "2026-09-09T16:39:43.188480"}
+{"step": 3, "action": "click", "ok": true, "timestamp": "2026-09-09T16:39:43.246259"}
+{"step": 4, "action": "type", "ok": true, "timestamp": "2026-09-09T16:39:43.286268"}
+{"step": 5, "action": "click", "ok": true, "timestamp": "2026-09-09T16:39:43.718791"}
+{"step": 6, "action": "click", "ok": true, "timestamp": "2026-09-09T16:39:43.844964"}
+{"step": 7, "action": "type", "ok": true, "timestamp": "2026-09-09T16:39:43.868033"}
+{"step": 8, "action": "click", "ok": true, "timestamp": "2026-09-09T16:39:43.971214"}
+{"step": 9, "action": "click", "ok": false, "error": "Locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for get_by_role(\"button\", name=\"Open Sub-Account\").first\n", "timestamp": "2026-09-09T16:40:13.993871"}
+{"event": "business_outcome", "outcome": "member_not_found", "timestamp": "2026-09-09T16:40:14.154862"}
