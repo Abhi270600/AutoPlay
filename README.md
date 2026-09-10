@@ -41,15 +41,15 @@ PYTHONPATH=. python -m agent.discovery \
 
 This runs a real Claude-driven discovery loop against the live mock app and writes evidence
 (step-by-step screenshots, a structured decision log, and the run result) to
-`evidence/runs/<timestamp>_discovery/`. Uses `claude-haiku-4-5-20251001` by default (cheap,
-sufficient for this loop); override with the `ANTHROPIC_MODEL` env var.
+`evidence/runs/<timestamp>_discovery/`. Uses `claude-sonnet-5` by default; override with the
+`ANTHROPIC_MODEL` env var (e.g. `claude-haiku-4-5-20251001` for a cheaper/faster run).
 
 Replay the recorded capability deterministically (no LLM) - note this works for *any* member ID,
 not just the one it was recorded on:
 
 ```
 PYTHONPATH=. python -m replay.engine \
-  --artifact artifacts/store/lookup-member-savings-balance.v1.json \
+  --artifact artifacts/store/lookup-member-savings-balance.v2.json \
   --param operator_id=tester --param operator_password=x --param member_id=23456
 ```
 
@@ -61,10 +61,14 @@ confirmation screen), deliberately stopping short of the final irreversible conf
 
 ```
 PYTHONPATH=. python -m replay.engine \
-  --artifact artifacts/store/open-sub-account.v1.json \
+  --artifact artifacts/store/open-sub-account.v2.json \
   --param operator_id=tester --param operator_password=x --param member_id=23456 \
   --param account_type="Money Market" --param initial_deposit=250
 ```
+
+Both capabilities exist as `.v1` (recorded with `claude-haiku-4-5-20251001`) and `.v2`
+(recorded with `claude-sonnet-5`) artifacts - a deliberate use of the schema's versioning to
+show the same recording pipeline works unchanged across models. `.v2` is current/recommended.
 
 See `evidence/README.md` for an indexed walkthrough of every captured run - discovery, replay
 success, two distinct business-outcome classes, and a real escalation/handoff.

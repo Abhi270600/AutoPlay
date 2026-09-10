@@ -29,7 +29,7 @@ from agent.guardrails import GuardrailPolicy, check_discovery_action
 from agent.surface import Surface
 from escalation.handoff import InterventionRequest, escalate
 
-MODEL = os.environ.get("ANTHROPIC_MODEL", "claude-haiku-4-5-20251001")
+MODEL = os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-5")
 
 SYSTEM_PROMPT = """\
 You are an automation agent operating a legacy bank member-servicing web
@@ -58,6 +58,10 @@ as closely as possible. Name matching is substring-based by default; set
 `exact: true` on the target if you need to match one specific element among
 several whose names overlap (e.g. a table cell nested inside a larger cell
 that contains the same text).
+
+Call the `act` tool exactly once per turn - one action at a time. Do not call
+it more than once in the same turn: only your first call is executed, and any
+further calls in that same turn are discarded without being run.
 
 You may only operate within http://localhost:5000 - do not navigate anywhere
 else. Always include a brief `reason` for your action.
@@ -157,6 +161,29 @@ def _create_with_retry(client: Anthropic, log: "DiscoveryLog", step: int, **kwar
     raise last_error
 
 
+def _extra_tool_result_blocks(tool_use_blocks: list, executed_id: str) -> list:
+    """
+    tool_choice forces which tool must be called, not how many times it's
+    called in one turn - a model can (and, empirically, Sonnet sometimes
+    does) emit several tool_use blocks in a single response. Only the first
+    is ever executed (one action per turn is the whole design), but every
+    OTHER tool_use in that same turn still needs a matching tool_result or
+    the next API call is rejected outright: "tool_use ids were found without
+    tool_result blocks". This isn't the transient 400 we retry for elsewhere
+    - it's a structural gap this closes so it can't happen at all.
+    """
+    return [
+        {
+            "type": "tool_result",
+            "tool_use_id": b.id,
+            "content": "Not executed - only the first action per turn is processed. "
+            "Issue this action again on a later turn if it's still needed.",
+        }
+        for b in tool_use_blocks
+        if b.id != executed_id
+    ]
+
+
 def _state_message(surface: Surface, evidence_dir: Path, step: int) -> dict:
     state = surface.get_state(evidence_dir, step)
     text = (
@@ -226,7 +253,10 @@ def run_discovery(
                 print(f"  response.stop_reason={response.stop_reason}")
                 for b in response.content:
                     print("  block:", repr(b))
-            tool_use = next(b for b in response.content if b.type == "tool_use")
+            tool_use_blocks = [b for b in response.content if b.type == "tool_use"]
+            tool_use = tool_use_blocks[0]
+            if len(tool_use_blocks) > 1:
+                log.write(step=step, event="multiple_tool_calls_in_turn", count=len(tool_use_blocks))
             action = Action(
                 type=tool_use.input["type"],
                 target=ElementRef(**tool_use.input["target"]) if tool_use.input.get("target") else None,
@@ -276,7 +306,8 @@ def run_discovery(
                                     f"({len(human_actions)} action(s) taken), then handed control back.\n\n"
                                     f"Current page:\n{new_state_text}"
                                 ),
-                            }
+                            },
+                            *_extra_tool_result_blocks(tool_use_blocks, tool_use.id),
                         ],
                     }
                 )
@@ -302,7 +333,8 @@ def run_discovery(
                             "type": "tool_result",
                             "tool_use_id": tool_use.id,
                             "content": result_text,
-                        }
+                        },
+                        *_extra_tool_result_blocks(tool_use_blocks, tool_use.id),
                     ],
                 }
             )

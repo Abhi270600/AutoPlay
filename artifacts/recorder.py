@@ -148,19 +148,19 @@ def _save(artifact: CapabilityArtifact) -> None:
 def record_lookup_member() -> CapabilityArtifact:
     return build_artifact(
         capability_id="lookup-member-savings-balance",
-        version=1,
+        version=2,
         description=(
             "Signs on to the CoreServ member servicing terminal, looks up a "
             "member by ID, and returns their current savings balance."
         ),
-        discovery_run_dir=Path("evidence/runs/20260909_110340_discovery"),
-        model="claude-haiku-4-5-20251001",
+        discovery_run_dir=Path("evidence/runs/20260910_134030_discovery"),
+        model="claude-sonnet-5",
         target_base_url="http://localhost:5000",
         entry_point="/login",
         param_bindings={
-            2: ParamSpec(name="operator_id", type="string", description="Operator ID to sign on with"),
-            4: ParamSpec(name="operator_password", type="string", description="Operator password to sign on with"),
-            7: ParamSpec(name="member_id", type="string", description="Member ID to look up"),
+            1: ParamSpec(name="operator_id", type="string", description="Operator ID to sign on with"),
+            2: ParamSpec(name="operator_password", type="string", description="Operator password to sign on with"),
+            4: ParamSpec(name="member_id", type="string", description="Member ID to look up"),
         },
         output_specs={
             "savings_balance": ParamSpec(
@@ -174,7 +174,7 @@ def record_lookup_member() -> CapabilityArtifact:
             KnownOutcome(name="permission_denied", kind="text_present", value="Access Denied"),
         ],
         target_overrides={
-            9: TargetLocator(
+            6: TargetLocator(
                 role="cell", name="Savings Balance:", exact=True, relative="next_cell",
                 reasoning=(
                     "Discovery targeted the balance's own text (\"$4231.00\"), which "
@@ -190,7 +190,7 @@ def record_lookup_member() -> CapabilityArtifact:
 def record_open_sub_account() -> CapabilityArtifact:
     return build_artifact(
         capability_id="open-sub-account",
-        version=1,
+        version=2,
         description=(
             "Signs on, opens a new sub-account for a member with a chosen "
             "account type and initial deposit, and reaches the confirmation "
@@ -199,16 +199,16 @@ def record_open_sub_account() -> CapabilityArtifact:
             "guardrail-classified risky action requiring human confirmation - "
             "see config/allowlist.yaml and REPORT.md Safety."
         ),
-        discovery_run_dir=Path("evidence/runs/20260909_163428_discovery"),
-        model="claude-haiku-4-5-20251001",
+        discovery_run_dir=Path("evidence/runs/20260910_134207_discovery"),
+        model="claude-sonnet-5",
         target_base_url="http://localhost:5000",
         entry_point="/login",
         param_bindings={
-            2: ParamSpec(name="operator_id", type="string", description="Operator ID to sign on with"),
-            4: ParamSpec(name="operator_password", type="string", description="Operator password to sign on with"),
-            7: ParamSpec(name="member_id", type="string", description="Member ID to open a sub-account for"),
-            11: ParamSpec(name="account_type", type="string", description="Sub-account type, e.g. \"Money Market\""),
-            13: ParamSpec(name="initial_deposit", type="string", description="Initial deposit amount, e.g. \"250\""),
+            1: ParamSpec(name="operator_id", type="string", description="Operator ID to sign on with"),
+            2: ParamSpec(name="operator_password", type="string", description="Operator password to sign on with"),
+            4: ParamSpec(name="member_id", type="string", description="Member ID to open a sub-account for"),
+            7: ParamSpec(name="account_type", type="string", description="Sub-account type, e.g. \"Money Market\""),
+            8: ParamSpec(name="initial_deposit", type="string", description="Initial deposit amount, e.g. \"250\""),
         },
         output_specs={},
         checkpoint=Checkpoint(kind="text_present", value="Confirm Sub-Account Details"),
