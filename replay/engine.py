@@ -143,6 +143,8 @@ def run_replay(
                 _run_step(page, step, params, outputs)
                 if log:
                     log.write(step=step.index, action=step.action, ok=True)
+                if evidence_dir:
+                    page.screenshot(path=str(evidence_dir / f"step_{step.index:03d}.png"))
             except Exception as e:
                 if log:
                     log.write(step=step.index, action=step.action, ok=False, error=str(e))
@@ -179,6 +181,8 @@ def run_replay(
                     _run_step(page, step, params, outputs)
                     if log:
                         log.write(step=step.index, action=step.action, ok=True, note="succeeded after escalation")
+                    if evidence_dir:
+                        page.screenshot(path=str(evidence_dir / f"step_{step.index:03d}.png"))
                     continue
                 except Exception as e2:
                     if log:
@@ -211,6 +215,8 @@ def run_replay(
                 ),
             )
 
+        if evidence_dir:
+            page.screenshot(path=str(evidence_dir / "success_final.png"))
         if log:
             log.write(event="success", outputs=outputs)
         return ReplayResult(status="success", outputs=outputs)
