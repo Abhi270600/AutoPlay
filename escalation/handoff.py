@@ -47,8 +47,13 @@ class InterventionRequest(BaseModel):
 
 class HandoffLog:
     def __init__(self, path: Path):
+        # Append, not overwrite: a single run (discovery or replay) can hit
+        # more than one escalation - e.g. a model retrying the same blocked
+        # action - and each one gets its own HandoffLog instance. Opening
+        # "w" here silently discarded every earlier escalation's log
+        # entries the moment a second one occurred in the same run.
         path.parent.mkdir(parents=True, exist_ok=True)
-        self._fh = open(path, "w", encoding="utf-8")
+        self._fh = open(path, "a", encoding="utf-8")
 
     def write(self, **entry):
         entry["timestamp"] = datetime.now().isoformat()
@@ -138,7 +143,11 @@ def escalate(
     real use; tests pass a scripted list to prove this deterministically.
     """
     evidence_dir.mkdir(parents=True, exist_ok=True)
-    (evidence_dir / "intervention_request.json").write_text(request.model_dump_json(indent=2))
+    # Per-step filename for the same reason HandoffLog now appends: more
+    # than one escalation can happen in a single run, and each one's
+    # request deserves to survive, not just the most recent.
+    request_path = evidence_dir / f"intervention_request_step_{request.current_step:03d}.json"
+    request_path.write_text(request.model_dump_json(indent=2))
     _set_control(evidence_dir, "human", reason=request.reason)
 
     print("=" * 70)

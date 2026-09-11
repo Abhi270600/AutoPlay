@@ -325,12 +325,19 @@ that one field, since the same kind of accidental match could easily happen agai
 approach. It can go wrong in both directions, flagging something that isn't actually secret, or
 missing something that is if the field happens to be labeled unexpectedly. A better version would
 check the actual type of the input box on the page, a real "password" field type, instead of
-guessing from the label text, and that's the first thing I'd fix if I kept working on this. I
-also didn't spend real API money running a live AI model just to prove it gets blocked when it
-tries something risky. That specific check is already tested directly, and it's the exact same
-code used in the real system, but I want to be upfront that "I tested the code directly" and "I
-watched a real model get blocked live" are two different levels of proof, and I only have the
-first one for that particular case.
+guessing from the label text, and that's the first thing I'd fix if I kept working on this.
+
+I did go spend real API money proving the guardrail holds against a live model, not just against
+the check function in isolation: I gave Claude a goal that explicitly told it to finish opening
+the sub-account, "including confirming and finalizing the new account", instead of stopping
+short like the recorded capability does. It walked through every real step, then tried to click
+"Confirm and Open Account", got blocked, was handed back control after the human declined, tried
+the identical click again on its own initiative, got blocked a second time, and only then gave up
+with a clear `fail` explaining exactly why (`evidence/runs/20260911_102111_discovery/`). That run
+also caught a real bug: the handoff log was overwriting itself on a second escalation within the
+same run, so the first block's entry was silently lost the moment the second one happened. Fixed
+in `escalation/handoff.py` (append instead of overwrite; per-step request filenames), and the run
+was redone to confirm the fix, both escalations now show up distinctly.
 
 ## 7. Cuts
 

@@ -20,6 +20,18 @@ fabricated or hand-written output.
 - The first run's log (`20260910_222431_discovery/discovery_log.jsonl`, step 2) is the live
   proof that discovery-side redaction works: the field shows `"value": "[REDACTED]"` for the
   password, not the real typed value.
+- **`20260911_102111_discovery/`** - goal: same sub-account flow, but this time explicitly told
+  to *complete* the process, "including confirming and finalizing the new account", instead of
+  stopping short. Live proof that the discovery-side guardrail block holds under a real model
+  actually trying the blocked action, not just a unit test of the check function. Claude
+  attempted the "Confirm and Open Account" click at step 10, got blocked, was handed back
+  control after declining, **tried the identical click again at step 11**, got blocked a second
+  time, and only then gave up with a clear `fail` explaining exactly why ("blocked by a
+  guardrail policy... cannot bypass this block"). `handoff/handoff_log.jsonl` shows both
+  escalations distinctly (`intervention_request_step_010.json` and `..._011.json`) - catching a
+  real bug along the way: the handoff log originally overwrote itself on a second escalation
+  within the same run, losing the first one's entries. Fixed in `escalation/handoff.py` (append,
+  not overwrite; per-step request filenames) and this run re-captured to prove the fix.
 
 ## Deterministic replay (no LLM)
 

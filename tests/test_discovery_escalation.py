@@ -81,7 +81,7 @@ with sync_playwright() as p:
 
 print(result.model_dump_json(indent=2))
 assert result.status == "success", result  # loop reached the scripted "done" AFTER surviving the block
-assert (evidence_dir / "handoff" / "intervention_request.json").exists(), "escalation was never raised"
+assert list((evidence_dir / "handoff").glob("intervention_request_step_*.json")), "escalation was never raised"
 assert (evidence_dir / "handoff" / "control_state.json").exists(), "control state was never recorded"
 
 print("DISCOVERY ESCALATION TEST PASSED")
