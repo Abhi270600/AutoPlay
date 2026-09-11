@@ -1,9 +1,9 @@
 {
   "capability_id": "open-sub-account-and-confirm-demo",
   "goal": null,
-  "current_step": 8,
+  "current_step": 10,
   "reason": "guardrail: risky_action_blocked - target role=\"button\" name=\"Confirm and Open Account\" is classified risky and is blocked pending human confirmation",
-  "screenshot_path": "evidence\\runs\\escalation_human_completes_confirmation\\handoff\\escalation_step_008.png",
+  "screenshot_path": "evidence\\runs\\escalation_human_completes_confirmation\\handoff\\escalation_step_010.png",
   "page_url": "http://localhost:5000/members/12345/sub-accounts/new",
-  "created_at": "2026-09-09T16:43:57.467053"
+  "created_at": "2026-09-10T23:35:19.934604"
 }

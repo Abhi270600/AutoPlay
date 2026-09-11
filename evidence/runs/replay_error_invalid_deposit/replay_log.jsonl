@@ -1,15 +1,10 @@
-{"step": 1, "action": "click", "ok": true, "timestamp": "2026-09-09T16:39:04.829430"}
-{"step": 2, "action": "type", "ok": true, "timestamp": "2026-09-09T16:39:04.869421"}
-{"step": 3, "action": "click", "ok": true, "timestamp": "2026-09-09T16:39:04.948787"}
-{"step": 4, "action": "type", "ok": true, "timestamp": "2026-09-09T16:39:04.970618"}
-{"step": 5, "action": "click", "ok": true, "timestamp": "2026-09-09T16:39:05.362542"}
-{"step": 6, "action": "click", "ok": true, "timestamp": "2026-09-09T16:39:05.481628"}
-{"step": 7, "action": "type", "ok": true, "timestamp": "2026-09-09T16:39:05.506845"}
-{"step": 8, "action": "click", "ok": true, "timestamp": "2026-09-09T16:39:05.921620"}
-{"step": 9, "action": "click", "ok": true, "timestamp": "2026-09-09T16:39:06.258743"}
-{"step": 10, "action": "click", "ok": true, "timestamp": "2026-09-09T16:39:06.403146"}
-{"step": 11, "action": "select", "ok": true, "timestamp": "2026-09-09T16:39:06.428882"}
-{"step": 12, "action": "click", "ok": true, "timestamp": "2026-09-09T16:39:06.480313"}
-{"step": 13, "action": "type", "ok": true, "timestamp": "2026-09-09T16:39:06.502268"}
-{"step": 14, "action": "click", "ok": true, "timestamp": "2026-09-09T16:39:06.572392"}
-{"event": "business_outcome", "outcome": "invalid_deposit_zero", "timestamp": "2026-09-09T16:39:06.682494"}
+{"step": 1, "action": "type", "ok": true, "timestamp": "2026-09-10T22:46:55.923951"}
+{"step": 2, "action": "type", "ok": true, "timestamp": "2026-09-10T22:46:57.041254"}
+{"step": 3, "action": "click", "ok": true, "timestamp": "2026-09-10T22:46:57.591793"}
+{"step": 4, "action": "type", "ok": true, "timestamp": "2026-09-10T22:46:57.808688"}
+{"step": 5, "action": "click", "ok": true, "timestamp": "2026-09-10T22:46:58.314977"}
+{"step": 6, "action": "click", "ok": true, "timestamp": "2026-09-10T22:46:58.667469"}
+{"step": 7, "action": "select", "ok": true, "timestamp": "2026-09-10T22:46:58.837517"}
+{"step": 8, "action": "type", "ok": true, "timestamp": "2026-09-10T22:46:58.952675"}
+{"step": 9, "action": "click", "ok": true, "timestamp": "2026-09-10T22:46:59.147187"}
+{"event": "business_outcome", "outcome": "invalid_deposit_zero", "timestamp": "2026-09-10T22:46:59.369483"}

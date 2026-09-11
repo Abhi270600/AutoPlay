@@ -148,12 +148,12 @@ def _save(artifact: CapabilityArtifact) -> None:
 def record_lookup_member() -> CapabilityArtifact:
     return build_artifact(
         capability_id="lookup-member-savings-balance",
-        version=2,
+        version=1,
         description=(
             "Signs on to the CoreServ member servicing terminal, looks up a "
             "member by ID, and returns their current savings balance."
         ),
-        discovery_run_dir=Path("evidence/runs/20260910_134030_discovery"),
+        discovery_run_dir=Path("evidence/runs/20260910_222431_discovery"),
         model="claude-sonnet-5",
         target_base_url="http://localhost:5000",
         entry_point="/login",
@@ -190,7 +190,7 @@ def record_lookup_member() -> CapabilityArtifact:
 def record_open_sub_account() -> CapabilityArtifact:
     return build_artifact(
         capability_id="open-sub-account",
-        version=2,
+        version=1,
         description=(
             "Signs on, opens a new sub-account for a member with a chosen "
             "account type and initial deposit, and reaches the confirmation "
@@ -199,7 +199,7 @@ def record_open_sub_account() -> CapabilityArtifact:
             "guardrail-classified risky action requiring human confirmation - "
             "see config/allowlist.yaml and REPORT.md Safety."
         ),
-        discovery_run_dir=Path("evidence/runs/20260910_134207_discovery"),
+        discovery_run_dir=Path("evidence/runs/20260910_222734_discovery"),
         model="claude-sonnet-5",
         target_base_url="http://localhost:5000",
         entry_point="/login",

@@ -6,9 +6,6 @@ replays the artifact deterministically without the model in the loop.
 
 Built for the interface.ai take-home assignment. See `REPORT.md` for the design write-up.
 
-> Status: under active development. This section will be filled in with real setup/run
-> instructions as each piece lands — see the phase checklist below for what's currently working.
-
 ## Setup
 
 ```
@@ -18,6 +15,10 @@ pip install -r requirements.txt
 playwright install chromium
 cp .env.example .env            # then fill in ANTHROPIC_API_KEY
 ```
+
+`ANTHROPIC_API_KEY` is only needed for discovery (the LLM-driven step). Replay never calls an
+LLM at all, so you can skip the `.env` setup entirely and go straight to the replay commands
+below if you just want to run the deterministic path against an already-recorded artifact.
 
 Start the mock target app (a fake legacy bank servicing tool the agent will operate):
 
@@ -31,7 +32,7 @@ a not-found case.
 
 ## Demo path
 
-With the mock app running (above) and `ANTHROPIC_API_KEY` set in `.env`:
+With the mock app running (above) and `ANTHROPIC_API_KEY` set in `.env`, run the agent on a goal:
 
 ```
 PYTHONPATH=. python -m agent.discovery \
@@ -44,31 +45,48 @@ This runs a real Claude-driven discovery loop against the live mock app and writ
 `evidence/runs/<timestamp>_discovery/`. Uses `claude-sonnet-5` by default; override with the
 `ANTHROPIC_MODEL` env var (e.g. `claude-haiku-4-5-20251001` for a cheaper/faster run).
 
-Replay the recorded capability deterministically (no LLM) - note this works for *any* member ID,
-not just the one it was recorded on:
+There's a second, richer goal recorded too - opening a sub-account (multi-field form ->
+confirmation screen), deliberately stopping short of the final irreversible confirmation click:
+
+```
+PYTHONPATH=. python -m agent.discovery \
+  --goal "Sign on, then open a new Money Market sub-account with an initial deposit of 250 dollars for member 12345, and reach the confirmation screen. Do not click the final confirm button - stop once the confirmation screen is displayed." \
+  --max-steps 15
+```
+
+Turn a successful run into a saved capability artifact:
+
+```
+PYTHONPATH=. python -m artifacts.recorder
+```
+
+This reads each discovery log and writes `artifacts/store/*.v1.json`. Note that
+`artifacts/recorder.py` currently points at the two specific discovery runs already checked into
+`/evidence/runs/` (the exact runs the two commands above originally produced), not simply "the
+most recent run" - if you run discovery again yourself and want to record *your* fresh run
+instead, update the `discovery_run_dir` path in `artifacts/recorder.py` to point at your new
+`evidence/runs/<timestamp>_discovery/` folder first.
+
+Then replay the resulting artifact deterministically (no LLM) - note this works for *any* member
+ID, not just the one it was recorded on:
 
 ```
 PYTHONPATH=. python -m replay.engine \
-  --artifact artifacts/store/lookup-member-savings-balance.v2.json \
+  --artifact artifacts/store/lookup-member-savings-balance.v1.json \
   --param operator_id=tester --param operator_password=x --param member_id=23456
 ```
 
 Try `member_id=99999` (not-found) or `member_id=90001` (permission-denied) to see the
 business-outcome path, or stop the mock app first to see the hard-failure path.
 
-A second, richer capability is also recorded - opening a sub-account (multi-field form ->
-confirmation screen), deliberately stopping short of the final irreversible confirmation click:
+And the second capability:
 
 ```
 PYTHONPATH=. python -m replay.engine \
-  --artifact artifacts/store/open-sub-account.v2.json \
+  --artifact artifacts/store/open-sub-account.v1.json \
   --param operator_id=tester --param operator_password=x --param member_id=23456 \
   --param account_type="Money Market" --param initial_deposit=250
 ```
-
-Both capabilities exist as `.v1` (recorded with `claude-haiku-4-5-20251001`) and `.v2`
-(recorded with `claude-sonnet-5`) artifacts - a deliberate use of the schema's versioning to
-show the same recording pipeline works unchanged across models. `.v2` is current/recommended.
 
 See `evidence/README.md` for an indexed walkthrough of every captured run - discovery, replay
 success, two distinct business-outcome classes, and a real escalation/handoff.
@@ -83,16 +101,6 @@ replay/       deterministic replay engine + outcome classification
 escalation/   human-in-the-loop handoff
 evidence/     saved logs/screenshots/artifacts from real runs
 config/       allowlist / guardrail policy
+tests/        guardrail unit tests + handoff/escalation tests + a Surface smoke test
+scripts/      one-off tooling: interactive escalation evidence capture, a discovery-log viewer
 ```
-
-## Phase checklist
-
-- [x] Mock target app
-- [x] Surface abstraction (perceive/act)
-- [x] Discovery agent loop (real LLM-driven run)
-- [x] Artifact schema + recorder
-- [x] Deterministic replay engine
-- [x] Guardrails (allowlist, risk classification, redaction)
-- [x] Escalation & handoff
-- [x] Evidence pass (including an error-path replay)
-- [ ] REPORT.md write-up

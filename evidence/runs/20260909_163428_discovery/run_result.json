@@ -1,8 +1,0 @@
-{
-  "status": "success",
-  "goal": "Sign on, then open a new Money Market sub-account with an initial deposit of 250 dollars for member 12345, and reach the confirmation screen. Do not click the final confirm button - stop once the confirmation screen is displayed.",
-  "outputs": {},
-  "steps": 15,
-  "reason": null,
-  "guardrail_violation": null
-}

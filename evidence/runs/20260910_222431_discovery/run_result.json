@@ -1,0 +1,10 @@
+{
+  "status": "success",
+  "goal": "Sign on, then look up member 12345 and read their current savings balance",
+  "outputs": {
+    "savings_balance": "$4231.00"
+  },
+  "steps": 7,
+  "reason": null,
+  "guardrail_violation": null
+}
