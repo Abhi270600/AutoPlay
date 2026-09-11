@@ -91,16 +91,52 @@ PYTHONPATH=. python -m replay.engine \
 See `evidence/README.md` for an indexed walkthrough of every captured run - discovery, replay
 success, two distinct business-outcome classes, and a real escalation/handoff.
 
+### Optional stretch goal: agent-facing capability interface
+
+Every saved capability, exposed as a tool a calling agent could discover and invoke by name with
+typed args (assignment section 8). The replay commands above take a file path (`--artifact
+artifacts/store/....json`); this takes a capability name instead, and, more importantly, is also
+a plain Python function (`capabilities.interface.invoke()`) that other code can call directly, no
+shelling out to a subprocess needed, which is what actually matters for an AI agent calling this.
+
+See the tool catalog every saved capability generates automatically:
+
+```
+PYTHONPATH=. python -m capabilities.interface catalog
+```
+
+Invoke one by name (writes the same kind of evidence, screenshots and a structured log, as the
+replay commands above, to `evidence/runs/<timestamp>_invoke_<name>/`):
+
+```
+PYTHONPATH=. python -m capabilities.interface invoke lookup-member-savings-balance \
+  --param operator_id=tester --param operator_password=x --param member_id=23456
+```
+
+No LLM involved anywhere in either command; both call the same, unmodified `replay.engine.run_replay()`
+the CLI commands above already use. See `capabilities/interface.py`.
+
+In everything above, a human still picked the capability name and typed the arguments. This one
+proves an actual AI agent can do both from a plain-English request, handing a live Claude call
+the real catalog as its tool list and letting it choose and fill in the arguments itself (costs
+one real API call):
+
+```
+PYTHONPATH=. python scripts/demo_agent_calls_capability.py
+```
+
 ## Project layout
 
 ```
-mock_app/     the legacy-style target Flask app (the "surface" being automated)
-agent/        perception/action abstraction + Claude-driven discovery loop + guardrails
-artifacts/    capability artifact schema + recorder
-replay/       deterministic replay engine + outcome classification
-escalation/   human-in-the-loop handoff
-evidence/     saved logs/screenshots/artifacts from real runs
-config/       allowlist / guardrail policy
-tests/        guardrail unit tests + handoff/escalation tests + a Surface smoke test
-scripts/      one-off tooling: interactive escalation evidence capture, a discovery-log viewer
+mock_app/       the legacy-style target Flask app (the "surface" being automated)
+agent/          perception/action abstraction + Claude-driven discovery loop + guardrails
+artifacts/      capability artifact schema + recorder
+replay/         deterministic replay engine + outcome classification
+escalation/     human-in-the-loop handoff
+capabilities/   agent-facing capability interface (optional stretch goal)
+evidence/       saved logs/screenshots/artifacts from real runs
+config/         allowlist / guardrail policy
+tests/          guardrail unit tests + handoff/escalation tests + a Surface smoke test
+scripts/        one-off tooling: interactive escalation evidence capture, a discovery-log viewer,
+                a real-agent-picks-a-capability demo
 ```

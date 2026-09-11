@@ -1,0 +1,7 @@
+{"step": 1, "action": "type", "ok": true, "timestamp": "2026-09-11T12:08:56.502724"}
+{"step": 2, "action": "type", "ok": true, "timestamp": "2026-09-11T12:08:57.493572"}
+{"step": 3, "action": "click", "ok": true, "timestamp": "2026-09-11T12:08:58.021307"}
+{"step": 4, "action": "type", "ok": true, "timestamp": "2026-09-11T12:08:58.225604"}
+{"step": 5, "action": "click", "ok": true, "timestamp": "2026-09-11T12:08:58.740831"}
+{"step": 6, "action": "extract", "ok": true, "timestamp": "2026-09-11T12:08:58.952723"}
+{"event": "success", "outputs": {"savings_balance": "$4231.00"}, "timestamp": "2026-09-11T12:08:59.173491"}

@@ -73,3 +73,29 @@ Business-outcome and escalation coverage beyond what's captured here (a duplicat
 outcome, a permission-denied outcome, a human *declining* the risky action) is exercised in
 `tests/test_handoff.py` and `tests/test_guardrails.py`, not duplicated here to keep this folder
 focused.
+
+## Optional stretch goal: agent-facing capability interface
+
+One engine (`run_replay()`), two doors into it: `replay.engine`'s own CLI by file path (see
+above), and `capabilities.interface` by name (`invoke()`, or its own CLI:
+`python -m capabilities.interface catalog` / `invoke <name> --param ...`, not separately
+captured here, `catalog` is a pure read of `artifacts/store/` and `invoke` produces the same
+evidence shape as any other replay run). The entry below isn't a third door; it's a different
+*caller* using door two, a real AI instead of a human typing the name and arguments.
+
+- **`20260911_120853_agent_call/`** - a real Claude call, handed the exact catalog
+  `build_catalog()` produces as its actual `tools=[...]` list (the same forced tool-calling
+  pattern `agent/discovery.py` already uses, just choosing between whole capabilities instead of
+  individual clicks), given a plain-English request: *"Check the savings balance of member
+  12345. Sign on as user_test and password as xxxxx."* `agent_decision.json` shows exactly what
+  it chose: the capability `lookup-member-savings-balance`, and arguments
+  (`operator_id: "user_test"`, `operator_password: "xxxxx"`, `member_id: "12345"`) pulled
+  correctly out of the sentence, values that don't even match the default example this script
+  ships with, proving it's genuinely reasoning over the request, not pattern-matching a fixed
+  phrase. `invoke_result.json` shows the real result, `status: success`,
+  `savings_balance: "$4231.00"`, and the per-step screenshots plus `replay_log.jsonl` are the
+  same real replay evidence every other run in this folder has, since `invoke()` was called with
+  a real `evidence_dir` this time. `scripts/demo_agent_calls_capability.py` is the one script in
+  this project that costs real API money purely to prove an *agent*, not a human, can discover
+  and correctly call a saved capability - everything else demonstrating this interface is
+  deliberately free.

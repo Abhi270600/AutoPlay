@@ -363,13 +363,45 @@ real actions on the real browser session, but it's not a nice-looking screen. Bu
 wouldn't have changed whether the underlying handoff actually works, and the assignment says a
 full visual console isn't required.
 
-**None of the optional bonus features.** If I kept working on this, the first one I'd add is a
-simple reliability score. Since replay already reports success, expected-answer, or failure every
-time it runs, I could just track how often each recipe succeeds and stop it running unsupervised
-if that number drops too low. I'm already generating the data this would need, so it wouldn't be
-much new work. After that, I'd look at letting the model help fix a single failed replay step,
-and only one step, never open-ended, building on the same human-handoff system that already
-exists.
+**One optional stretch goal, and only one.** I built the agent-facing capability interface
+(`capabilities/interface.py`): every saved artifact turned into a tool definition shaped exactly
+like an Anthropic API tool, and one `invoke(name, **kwargs)` function that runs it through the
+same, unmodified replay engine every CLI replay command already uses. No new automation logic,
+no new decision-maker, it just makes an existing capability callable the way the assignment's own
+opening paragraph describes, "the AI agents can invoke it on demand", instead of only runnable
+by a person typing a CLI command with a file path.
+
+It's worth being precise about how many actual ways there are to trigger a replay now, because it
+sounds like more than it is: there is one engine (`run_replay()`) and two doors into it, not
+three. Door one is the original `replay.engine` CLI, by file path. Door two is
+`capabilities.interface`, by name, `invoke(name, **kwargs)` internally, or as its own CLI
+(`python -m capabilities.interface catalog` / `invoke <name> --param ...`). The "AI agent" piece
+below isn't a third door; it's a different *caller* using door two, it doesn't touch `run_replay()`
+itself at all, it hands its decision to the exact same `invoke()`. Deciding *which* capability
+matches a goal is the calling agent's own job either way, the same way `agent/discovery.py`'s
+model already picks between click/type/select from a tool description; this doesn't add a second
+AI making decisions, it just makes what we already built callable by one.
+
+Every demonstration of door two on its own still had a human picking the capability name and
+typing the arguments, which isn't actually the scenario the assignment describes. So I built one
+more, small, real proof: `scripts/demo_agent_calls_capability.py` hands a live Claude call the
+exact catalog `build_catalog()` produces as its actual `tools=[...]` list, the same forced
+tool-calling pattern `agent/discovery.py` already uses for individual clicks, just one level up,
+and a plain-English request typed by a person, not the capability name or arguments. With two
+real capabilities to choose between, it correctly picked `lookup-member-savings-balance` over
+`open-sub-account` and correctly pulled the right arguments out of the sentence every time it was
+tried, including with different member IDs and operator credentials than my own original example
+(`evidence/runs/20260911_120853_agent_call/`). That's the one place in this entire stretch goal,
+and the only script in the project, where real API money was spent specifically to prove an
+agent, not a person, can use this interface.
+
+I left the other five alone on purpose, not for lack of ideas. If I kept working on this, the
+next one I'd add is a simple reliability score: since replay already reports success,
+expected-answer, or failure every time it runs, I could just track how often each recipe succeeds
+and stop it running unsupervised if that number drops too low. I'm already generating the data
+this would need, so it wouldn't be much new work. After that, I'd look at letting the model help
+fix a single failed replay step, and only one step, never open-ended, building on the same
+human-handoff system that already exists.
 
 **What I'd actually go fix first** is the redaction system. Matching field names against a list
 of sensitive words already caught one real mistake, and I have no reason to believe it's the only

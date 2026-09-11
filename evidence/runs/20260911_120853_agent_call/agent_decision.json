@@ -1,0 +1,9 @@
+{
+  "user_request": "Check the savings balance of member 12345. Sign on as user_test and password as xxxxx.",
+  "capability_chosen": "lookup-member-savings-balance",
+  "arguments_chosen": {
+    "operator_id": "user_test",
+    "operator_password": "xxxxx",
+    "member_id": "12345"
+  }
+}
