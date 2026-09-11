@@ -105,6 +105,13 @@ See the tool catalog every saved capability generates automatically:
 PYTHONPATH=. python -m capabilities.interface catalog
 ```
 
+This re-reads `artifacts/store/` fresh every time it's called, no caching, so a new capability
+shows up here the instant it exists there, nothing to register by hand. That said, getting a
+*new* capability into `artifacts/store/` in the first place still means running
+`artifacts.recorder` after pointing it at your new discovery run (see the note on
+`discovery_run_dir` above) - the catalog picking it up automatically doesn't skip that step, it
+just means you don't need a *second* manual step once the artifact file exists.
+
 Invoke one by name (writes the same kind of evidence, screenshots and a structured log, as the
 replay commands above, to `evidence/runs/<timestamp>_invoke_<name>/`):
 
