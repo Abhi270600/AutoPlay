@@ -1,8 +1,9 @@
-# Computer-Use Automation System
+# AutoPlay
 
-A small end-to-end system that lets an LLM discover how to accomplish a goal inside a
-UI-only ("no API") application, records that run as a reusable, typed capability artifact, and
-replays the artifact deterministically without the model in the loop.
+### Agentic Computer-Use Automation
+
+An LLM agent learns how to do a task inside a UI-only app once, records it as a reusable
+capability, and replays it deterministically forever after, no model in the loop.
 
 Built for the interface.ai take-home assignment. See `REPORT.md` for the design write-up.
 
