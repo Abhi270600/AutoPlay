@@ -111,11 +111,15 @@ just the first) and telling the model to send one action per turn.
 
 ## 2. Artifact schema
 
-The artifact file (`artifacts/schema.py`) is a recipe card for one task: a name and version,
-where to start (`target`), where it came from (`provenance`), typed `input_params`, the ordered
-`steps`, typed `outputs`, a `checkpoint`, and expected non-error answers (`known_outcomes`).
-Anyone, a person or another AI agent, should be able to read this one file and know exactly what
-the task needs and returns, without reading code.
+The artifact file (`artifacts/schema.py`) is a recipe card for one task. Anyone, a person or
+another AI agent, should be able to read this one file and know exactly what the task needs and
+returns, without reading code. It holds:
+
+- a **name and version**
+- where to start (`target`) and where it came from (`provenance`)
+- typed **`input_params`**
+- the ordered **`steps`**
+- typed **`outputs`**, a **`checkpoint`**, and expected non-error answers (**`known_outcomes`**)
 
 Each step targets an element by role and name, plus a `reasoning` field explaining why that
 should keep working over time. That field isn't decorative: the first recording's balance-lookup
@@ -125,16 +129,20 @@ if it were the question, only matching that one member's page. Fixed by adding a
 replaying against a different member and getting their real, different balance back.
 
 Turning a discovery run into an artifact is deliberately manual in two places, both in
-`artifacts/recorder.py`: deciding which literal values become `input_params` (a judgment call
-about what the task is *for*, not inferable from the log), and locator overrides like the case
-above. The recorder also caught the dummy sign-on credentials being saved as literal text in the
-first version, exactly what the assignment's safety section warns against, so they're
-parameterized the same way as the member ID now; the artifact never contains a credential.
+`artifacts/recorder.py`:
 
-I chose a human-reviewed step over a fully automatic conversion on purpose, an automatic version
-would have to guess which values are "the task's data" versus "just how this run happened to go,"
-and guessing wrong ships a broken or overly narrow capability. The real cost is speed: every new
-capability needs a person to sit down with the log once, it doesn't scale to hundreds of
+- deciding which literal values become `input_params` (a judgment call about what the task is
+  *for*, not inferable from the log)
+- locator overrides like the `next_cell` case above
+
+The recorder also caught the dummy sign-on credentials being saved as literal text in the first
+version, exactly what the assignment's safety section warns against, so they're parameterized the
+same way as the member ID now; the artifact never contains a credential.
+
+I chose this human-reviewed step over a fully automatic conversion on purpose: an automatic
+version would have to guess which values are "the task's data" versus "just how this run happened
+to go," and guessing wrong ships a broken or overly narrow capability. The real cost is speed,
+every new capability needs a person to sit down with the log once, it doesn't scale to hundreds of
 capabilities a day without that review step becoming the bottleneck.
 
 Every artifact carries a version number (currently 1 for both capabilities), so a future
@@ -162,13 +170,15 @@ for it on purpose, it's a resolution *path*, not a new outcome type: a slow page
 Playwright's own retry, a genuinely stuck step gets escalated to a human and retried once control
 returns (Escalation & handoff below), and either way the run still ends in success or failure.
 
-Two real bugs turned up building this. First, this app's nested tables mean an outer cell's name
-can contain an inner cell's text as a substring, so a loose match on a value sometimes grabbed a
-whole record instead of the one field, structural to this kind of page, since it showed up
-independently in three different places. Fixed with an `exact`-match flag. Second, my first cut
-of replay left the *initial* navigation outside the error handling, so a genuinely down target
-crashed the whole program instead of returning a clean failure, found by stopping the mock app
-mid-test.
+Two real bugs turned up building this:
+
+- **Substring matches on nested tables.** An outer cell's name can contain an inner cell's text as
+  a substring, so a loose match sometimes grabbed a whole record instead of the one field,
+  structural to this kind of page since it showed up independently in three different places.
+  Fixed with an `exact`-match flag.
+- **Initial navigation outside error handling.** My first cut of replay left the *initial* page
+  navigation outside the error handling, so a genuinely down target crashed the whole program
+  instead of returning a clean failure. Found by stopping the mock app mid-test.
 
 One judgment call worth stating plainly: the sub-account flow has a duplicate-warning pop-up
 whose "Continue Anyway" button actually finalizes the (irreversible) account, not a cosmetic
@@ -186,22 +196,28 @@ would need a different `Surface` underneath (Windows/macOS accessibility APIs in
 browser), and nothing above that line would change, the artifact schema doesn't mention Playwright
 or a browser anywhere either.
 
-Multi-tenant reuse is the harder problem, and I'd solve it the way I already solved locator
-brittleness within one tenant: record a stable relationship, not a fixed path. Two tenants on the
-same vendor product usually share the underlying structure even where branding differs; an
-artifact should be tried as-is first, and where a locator fails, `reasoning` is exactly where a
-person (or eventually a bounded, policy-checked LLM helper) would produce a per-tenant override,
-a patch on a shared artifact, not a re-recording. I picked patching over re-recording because most
-of a task usually still works, throwing the whole thing away and starting over wastes the parts
-that didn't break. The cost is that patches pile up quietly: nobody notices when one artifact is
-carrying five tenant-specific overrides until something breaks in a confusing way. Drift detection
-is what I'd build next to catch that: replay's own three-way result over many runs is the natural
-signal, a quietly dropping success rate on one tenant is a concrete, measurable trigger for review.
+Multi-tenant reuse is the harder problem. I'd solve it the way I already solved locator
+brittleness within one tenant: record a stable relationship, not a fixed path.
+
+- Two tenants on the same vendor product usually share the underlying structure even where
+  branding differs, so an artifact should be tried as-is first.
+- Where a locator fails, `reasoning` is exactly where a person (or eventually a bounded,
+  policy-checked LLM helper) would produce a per-tenant override, a patch on a shared artifact,
+  not a re-recording.
+
+I picked patching over re-recording because most of a task usually still works, throwing the whole
+thing away and starting over wastes the parts that didn't break. The cost is that patches pile up
+quietly: nobody notices when one artifact is carrying five tenant-specific overrides until
+something breaks in a confusing way. Drift detection is what I'd build next to catch that: replay's
+own three-way result over many runs is the natural signal, a quietly dropping success rate on one
+tenant is a concrete, measurable trigger for review.
 
 ## 5. Escalation & handoff
 
-Two situations need a person: a step is judged too risky to do automatically, or something fails
-in a way the system doesn't know how to handle. Both lead to `escalation/handoff.py`.
+Two situations need a person, and both lead to `escalation/handoff.py`:
+
+- a step is judged too risky to do automatically
+- something fails in a way the system doesn't know how to handle
 
 I wanted this to actually work, not just look like it works on paper, so the "operator surface" is
 a small typed command line (`click/type/select <role> <name> [value]`, plus `state`/`resume`) that
@@ -228,12 +244,14 @@ remote-viewing mechanism only when escalation triggers, meaningfully more infras
 project needs, and exactly what the assignment scopes out (a full co-browsing console). The typed
 prompt is the deliberately minimal stand-in for that.
 
-Replay and discovery handle "after resume" differently, on purpose. If replay was blocked by
-policy, it skips that step, the person already decided its fate. If replay hit a genuine
-unexpected failure, it retries the same step once, on the idea the person's fix (clearing a stuck
-dialog) should let it succeed now. Discovery just feeds the outcome back as a normal tool result
-and lets the model keep reasoning, verified with a scripted fake model client so I didn't need a
-live API call to prove wiring that doesn't depend on real model reasoning.
+Replay and discovery handle "after resume" differently, on purpose:
+
+- If replay was **blocked by policy**, it skips that step, the person already decided its fate.
+- If replay hit a **genuine unexpected failure**, it retries the same step once, on the idea the
+  person's fix (clearing a stuck dialog) should let it succeed now.
+- **Discovery** just feeds the outcome back as a normal tool result and lets the model keep
+  reasoning, verified with a scripted fake model client so I didn't need a live API call to prove
+  wiring that doesn't depend on real model reasoning.
 
 I didn't build a graphical control panel; the assignment doesn't require one, and a working typed
 prompt on the real session is a more honest use of time than a screen doing the same three things
@@ -242,26 +260,29 @@ underneath.
 ## 6. Safety
 
 Every action, from discovery or replay, is checked by `agent/guardrails.py` before it touches the
-page, no path around it. It enforces three things from `config/allowlist.yaml`: which
-sites/routes are allowed, which action types are allowed, and which specific targets are too
-risky to do automatically.
+page, no path around it. It enforces three things from `config/allowlist.yaml`:
+
+- which sites/routes are allowed
+- which action types are allowed
+- which specific targets are too risky to do automatically
 
 Risk is classified by the exact target (role + name, e.g. the "Confirm and Open Account" button),
 not by action type, since almost everything is technically just "a click." I chose this over
-blocking by action type because blocking every click would make the system useless, and allowing
-every click would make guardrails pointless, the danger is in *which* click, not the click itself.
-The real cost of this choice: the allowlist has to already know about a risky element by name.
-A new irreversible button nobody has configured yet would slip through as "just a click" until
-someone adds it, this only protects against risks it's been told about. A risky target is
-blocked outright, feeding directly into escalation. Proved this under real pressure, not just in
-isolation: a test walks seven genuine steps on the live app and is correctly refused on the
-eighth, the actual money-moving click. I also spent real API money proving this holds against a
-live model, not just the check function: given a goal that explicitly says to finish opening the
-account rather than stop short, Claude tried the blocked click, got refused, tried it again on its
-own initiative, got refused a second time, then gave up with a clear explanation
-(`evidence/runs/20260911_102111_discovery/`). That run caught a real bug too: the handoff log was
-overwriting itself on a second escalation in the same run, silently losing the first block's
-entry. Fixed to append instead of overwrite, and re-ran to confirm.
+blocking by action type because blocking every click makes the system useless, and allowing every
+click makes guardrails pointless, the danger is in *which* click, not the click itself. The real
+cost: the allowlist has to already know about a risky element by name. A new irreversible button
+nobody has configured yet would slip through as "just a click" until someone adds it, this only
+protects against risks it's been told about.
+
+A risky target is blocked outright, feeding directly into escalation. Proved this under real
+pressure, not just in isolation: a test walks seven genuine steps on the live app and is correctly
+refused on the eighth, the actual money-moving click. I also spent real API money proving this
+holds against a live model, not just the check function: given a goal that explicitly says to
+finish opening the account rather than stop short, Claude tried the blocked click, got refused,
+tried it again on its own initiative, got refused a second time, then gave up with a clear
+explanation (`evidence/runs/20260911_102111_discovery/`). That run caught a real bug too: the
+handoff log was overwriting itself on a second escalation in the same run, silently losing the
+first block's entry. Fixed to append instead of overwrite, and re-ran to confirm.
 
 **Redaction** keeps secrets out of anything written to disk, matching field names against a short
 sensitive-word list and swapping the value for `[REDACTED]`. Caught a real false positive while
@@ -289,16 +310,18 @@ session; a UI on top wouldn't change whether the control-transfer model works, a
 scopes a full console out.
 
 **One optional stretch goal, and only one: the agent-facing capability interface**
-(`capabilities/interface.py`, see Architecture's third diagram for how it fits). Every saved
-artifact becomes a tool definition shaped like a real Anthropic tool, and `invoke(name, **kwargs)`
-runs it through the same, unmodified replay engine, no new automation logic, no new
-decision-maker. Every demonstration of it on its own still had a human picking the name and
-typing arguments, so I also built `scripts/demo_agent_calls_capability.py`: a live Claude call
-gets the real catalog as its `tools=[...]` list and a plain-English request, and has to choose
-between two real capabilities and fill in arguments itself. It picked correctly every time it was
-tried, including with different member IDs and credentials than my own example
-(`evidence/runs/20260911_120853_agent_call/`), the one place in this stretch goal real API money
-was spent specifically to prove an agent, not a person, can use it.
+(`capabilities/interface.py`, see Architecture's third diagram for how it fits).
+
+- Every saved artifact becomes a tool definition shaped like a real Anthropic tool, and
+  `invoke(name, **kwargs)` runs it through the same, unmodified replay engine, no new automation
+  logic, no new decision-maker.
+- Every demonstration of it on its own still had a human picking the name and typing arguments, so
+  I also built `scripts/demo_agent_calls_capability.py`: a live Claude call gets the real catalog
+  as its `tools=[...]` list and a plain-English request, and has to choose between two real
+  capabilities and fill in arguments itself.
+- It picked correctly every time it was tried, including with different member IDs and credentials
+  than my own example (`evidence/runs/20260911_120853_agent_call/`), the one place in this stretch
+  goal real API money was spent specifically to prove an agent, not a person, can use it.
 
 I picked this one over the other optional stretch goals, like a reliability score or
 LLM-assisted failure recovery, because it's the lowest-risk: it adds zero new decision-making and
