@@ -5,7 +5,7 @@
 An LLM agent learns how to do a task inside a UI-only app once, records it as a reusable
 capability, and replays it deterministically forever after, no model in the loop.
 
-Built for the interface.ai take-home assignment. See `REPORT.md` for the design write-up.
+See `REPORT.md` for the design write-up.
 
 ## Setup
 
